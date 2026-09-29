@@ -1,0 +1,64 @@
+{
+  "recipients": [
+    { "id": "coordinator", "title": "The Coordinator", "dept": "Department of Computer Science", "inst": "University of Agriculture, Faisalabad" },
+    { "id": "chairman", "title": "The Chairman", "dept": "Department of Computer Science", "inst": "University of Agriculture, Faisalabad" },
+    { "id": "dean", "title": "The Dean", "dept": "Faculty of Sciences", "inst": "University of Agriculture, Faisalabad" },
+    { "id": "registrar", "title": "The Registrar", "dept": "Admin Block", "inst": "University of Agriculture, Faisalabad" },
+    { "id": "controller", "title": "The Controller of Examinations", "dept": "Examination Wing", "inst": "University of Agriculture, Faisalabad" },
+    { "id": "warden", "title": "The Senior Tutor / Warden", "dept": "Hostel Hall Council", "inst": "University of Agriculture, Faisalabad" }
+  ],
+  "templates": [
+    {
+      "id": "leave",
+      "name": "Leave Application",
+      "defaultSubject": "Application for Grant of Academic Leave",
+      "defaultBody": "Respected Sir,\n\nWith due respect, I beg to state that I am unable to attend my regular lectures due to pressing personal reasons. I request you to kindly grant me leave for the specified duration.\n\nI assure you that I will cover any missed coursework or lab tasks immediately upon my return.",
+      "dynamicFields": [
+        { "name": "fromDate", "label": "From Date", "type": "date", "required": true },
+        { "name": "toDate", "label": "To Date", "type": "date", "required": true },
+        { "name": "reason", "label": "Reason for Leave", "type": "text", "placeholder": "e.g. Illness / Family emergency", "required": true }
+      ]
+    },
+    {
+      "id": "section_change",
+      "name": "Section Change",
+      "defaultSubject": "Application for Requesting Change of Class Section",
+      "defaultBody": "Respected Sir,\n\nI respectfully request permission to change my current academic section. Due to unavoidable schedule conflicts and genuine academic reasons, attending lectures in my current section has become challenging.\n\nI humbly request your approval to transfer my enrollment to the requested section.",
+      "dynamicFields": [
+        { "name": "currentSection", "label": "Current Section", "type": "text", "placeholder": "e.g. BS CS 4th Morning A", "required": true },
+        { "name": "requestedSection", "label": "Requested Section", "type": "text", "placeholder": "e.g. BS CS 4th Morning B", "required": true },
+        { "name": "reason", "label": "Reason for Transfer", "type": "text", "placeholder": "Academic/Clash issue", "required": true }
+      ]
+    },
+    {
+      "id": "course_registration",
+      "name": "Course Registration",
+      "defaultSubject": "Application for Course Registration / Enrollment",
+      "defaultBody": "Respected Sir,\n\nWith due respect, I wish to submit my request for registering the specified course(s) for the current academic semester. I have fulfilled all prerequisites required for enrollment.\n\nKindly allow me to formally register for the course(s) listed below.",
+      "dynamicFields": [
+        { "name": "courseCode", "label": "Course Code", "type": "text", "placeholder": "e.g. CS-501", "required": true },
+        { "name": "courseTitle", "label": "Course Title", "type": "text", "placeholder": "e.g. Advanced Software Engineering", "required": true }
+      ]
+    },
+    {
+      "id": "fee_issue",
+      "name": "Fee Issue",
+      "defaultSubject": "Application Regarding Fee Challan Verification / Extension",
+      "defaultBody": "Respected Sir,\n\nI am writing to bring to your attention a matter regarding my semester fee voucher/challan. Due to unexpected financial constraints/processing delays, I request your kind consideration and assistance in resolving this issue.\n\nDetails of my voucher are attached for your reference.",
+      "dynamicFields": [
+        { "name": "challanNo", "label": "Challan Number", "type": "text", "placeholder": "e.g. UAF-894123", "required": true },
+        { "name": "amount", "label": "Amount (PKR)", "type": "number", "placeholder": "e.g. 45000", "required": true },
+        { "name": "description", "label": "Issue Description", "type": "text", "placeholder": "Late submission extension / Incorrect amount", "required": true }
+      ]
+    },
+    {
+      "id": "other",
+      "name": "Other (AI Prompt)",
+      "defaultSubject": "Application Regarding Official Academic Request",
+      "defaultBody": "Respected Sir,\n\nWith due respect, I am writing to formally request your assistance regarding the aforementioned subject.\n\nI kindly request you to consider my application and grant necessary approval.",
+      "dynamicFields": [
+        { "name": "customPurpose", "label": "Describe Application Purpose (AI Assistant)", "type": "text", "placeholder": "e.g. Request for sports kit issuance for inter-university gala", "required": true }
+      ]
+    }
+  ]
+}

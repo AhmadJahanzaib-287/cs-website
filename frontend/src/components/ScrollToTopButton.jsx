@@ -1,0 +1,57 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowUp } from 'lucide-react';
+
+export default function ScrollToTopButton() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const getScrollY = () =>
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    const handleScroll = () => {
+      const y = getScrollY();
+      setVisible(y > 30); // very small threshold — shows as soon as Hero starts moving
+    };
+
+    // Listen on multiple targets so it works no matter which element actually scrolls
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Check once immediately in case the page is already scrolled on mount
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.button
+          onClick={scrollToTop}
+          // Starts fully off-screen to the left, slides RIGHT into its resting spot.
+          initial={{ x: -1200, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: -1200, opacity: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          // Fixed to the viewport, sits near the bottom-RIGHT corner, above other content.
+          className="fixed bottom-16 right-10 lg:right-16 z-[999] w-14 h-14 rounded-full bg-slate-900/95 border-2 border-cyan-500/50 backdrop-blur-md shadow-xl shadow-cyan-500/30 flex items-center justify-center text-cyan-400 cursor-pointer hover:bg-slate-800 hover:border-cyan-400 transition-colors"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}

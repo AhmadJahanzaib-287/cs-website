@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+body {
+  font-family: "DM Sans", sans-serif;
+}
+
+.font-sans {
+  font-family: "DM Sans", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Manrope", "DM Sans", sans-serif;
+  letter-spacing: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.public-light-theme {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.public-light-theme .hero-copy h1 {
+  font-family: "Manrope", "DM Sans", sans-serif;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.public-light-theme [class~="bg-[#0b0f19]"] {
+  background-color: #f3f4f6 !important;
+}
+
+.public-light-theme [class*="bg-slate-950"],
+.public-light-theme [class*="bg-slate-900"] {
+  background-color: #ffffff !important;
+}
+
+.public-light-theme [class*="bg-slate-800"] {
+  background-color: #f3f4f6 !important;
+}
+
+.public-light-theme [class*="border-slate-800"],
+.public-light-theme [class*="border-slate-700"] {
+  border-color: #d1d5db !important;
+}
+
+.public-light-theme [class~="text-slate-100"] {
+  color: #1f2937 !important;
+}
+
+.public-light-theme [class~="text-slate-200"] {
+  color: #374151 !important;
+}
+
+.public-light-theme [class~="text-slate-300"] {
+  color: #4b5563 !important;
+}
+
+.public-light-theme [class~="text-slate-400"],
+.public-light-theme [class~="text-slate-500"] {
+  color: #6b7280 !important;
+}
+
+.public-light-theme :is(h1, h2, h3, h4)[class~="text-white"] {
+  color: #111827 !important;
+}
+
+.public-light-theme nav [class~="text-white"] {
+  color: #1e3a8a !important;
+}
+
+.public-light-theme header [class~="text-white"] {
+  color: #1e3a8a !important;
+}
+
+.public-light-theme [class~="from-slate-950"][class~="to-slate-900"] {
+  background-image: linear-gradient(135deg, #eff6ff, #ffffff) !important;
+}
+
+.public-light-theme [class*="bg-blue-950"] {
+  background-color: #eff6ff !important;
+}
+
+.public-light-theme [class*="border-blue-800"] {
+  border-color: #bfdbfe !important;
+}
+
+.public-light-theme [class~="text-blue-400"] {
+  color: #1d4ed8 !important;
+}
+
+.public-light-theme [class~="text-cyan-400"],
+.public-light-theme [class~="text-cyan-300"] {
+  color: #0e7490 !important;
+}
+
+.public-light-theme .fixed[class*="bg-slate-950"],
+.public-light-theme .fixed[class*="bg-slate-900"] {
+  background-color: rgb(15 23 42 / 55%) !important;
+}
