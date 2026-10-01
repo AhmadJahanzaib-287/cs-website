@@ -82,9 +82,7 @@ export default function FacultyProfile({ member, onBack }) {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Ambient Glow Effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 pt-24 pb-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="absolute bottom-10 right-10 w-[400px] h-[250px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative z-10 space-y-8">
@@ -98,10 +96,10 @@ export default function FacultyProfile({ member, onBack }) {
             <button
               type="button"
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800/80 transition shadow-lg backdrop-blur-xl cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-[#7c3aed] transition-colors cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4 text-cyan-400" />
-              <span>Back to Directory</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
             </button>
             <span className="text-xs font-semibold text-slate-400 bg-slate-900/60 border border-slate-800/60 px-3 py-1.5 rounded-xl backdrop-blur-xl">
               {category}
@@ -109,15 +107,16 @@ export default function FacultyProfile({ member, onBack }) {
           </motion.div>
         )}
 
-        {/* HERO HEADER CARD */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)] gap-6 items-stretch">
+          {/* HERO HEADER CARD */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden"
+          >
           {/* Header Accent Line */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-[#7c3aed]" />
 
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-8">
             {/* Avatar Image */}
@@ -181,10 +180,10 @@ export default function FacultyProfile({ member, onBack }) {
               </div>
             </div>
           </div>
-        </motion.div>
+          </motion.div>
 
-        {/* METRICS HIGHLIGHTS GRID */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* METRICS HIGHLIGHTS GRID */}
+          <div className="grid grid-cols-2 gap-4">
           <div className="bg-slate-900/80 border border-slate-800/80 p-4 rounded-2xl backdrop-blur-xl text-center space-y-1">
             <Briefcase className="w-5 h-5 text-cyan-400 mx-auto" />
             <p className="text-[10px] uppercase font-bold text-slate-400">Experience</p>
@@ -219,6 +218,7 @@ export default function FacultyProfile({ member, onBack }) {
               <p className="text-base font-extrabold text-white">N/A</p>
             )}
           </div>
+          </div>
         </div>
 
         {/* TABBED NAVIGATION & CONTENT */}
@@ -232,7 +232,7 @@ export default function FacultyProfile({ member, onBack }) {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-cyan-500/20'
+                    ? 'bg-[#7c3aed] text-white shadow-lg shadow-purple-500/20'
                     : 'bg-slate-900/60 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-slate-800/50'
                 }`}
               >

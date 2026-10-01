@@ -34,8 +34,8 @@ export default function FacultyCard({ member, onViewProfile, onEdit }) {
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-2xl shadow-xl hover:border-cyan-500/40 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-full text-slate-100"
     >
-      {/* Top Gradient Accent Line (reveals on hover) */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Top Accent Line (reveals on hover) */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div>
         {/* Avatar Image Container */}
@@ -104,7 +104,7 @@ export default function FacultyCard({ member, onViewProfile, onEdit }) {
           <button
             type="button"
             onClick={() => onViewProfile && onViewProfile(member)}
-            className="flex-1 mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-gradient-to-r hover:from-cyan-500 hover:to-blue-600 text-xs font-semibold text-slate-200 hover:text-white transition-all duration-200 cursor-pointer"
+            className="flex-1 mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-[#7c3aed] text-xs font-semibold text-slate-200 hover:text-white transition-all duration-200 cursor-pointer"
           >
             <span>View Full Profile</span>
             <ChevronRight className="w-4 h-4" />

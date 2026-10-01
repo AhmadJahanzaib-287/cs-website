@@ -27,9 +27,6 @@ export default function ProgramDetails() {
   return (
     <div className="relative min-h-screen bg-[#0b0f19] text-slate-100 overflow-hidden pt-16 pb-24 px-4 sm:px-8 select-none">
       
-      {/* Central Cyan Glow Background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
       {/* Main Container Page Motion Entrance */}
       <motion.div 
         initial={{ opacity: 0, y: 15 }}

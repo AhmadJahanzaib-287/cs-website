@@ -47,9 +47,6 @@ export default function ContactSection() {
       id="contact"
       className="relative py-16 sm:py-20 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden"
     >
-      {/* Background Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">

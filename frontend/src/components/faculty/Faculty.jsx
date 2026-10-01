@@ -1,67 +1,79 @@
-import React, { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
-
-// 🔹 Separate FacultyForm component imported here
-import FacultyForm from './components/FacultyForm';
+import React, { useEffect, useState } from 'react';
+import { Users } from 'lucide-react';
+import API from '../../api/axios';
+import FacultyCard from './FacultyCard';
+import FacultyProfile from './FacultyProfile';
 
 export default function Faculty() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingFaculty, setEditingFaculty] = useState(null);
+  const [facultyList, setFacultyList] = useState([]);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleOpenAddForm = () => {
-    setEditingFaculty(null);
-    setIsFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setEditingFaculty(null);
-  };
-
-  const handleSaveFaculty = async (formData) => {
-    try {
-      if (editingFaculty) {
-        // API call to update faculty member
-        // await API.put(`/faculty/${editingFaculty._id}`, formData);
-      } else {
-        // API call to create new faculty member
-        // await API.post('/faculty', formData);
+  useEffect(() => {
+    const fetchFaculty = async () => {
+      try {
+        const response = await API.get('/faculty');
+        if (response.data.success) {
+          setFacultyList(response.data.data || []);
+        }
+      } catch (err) {
+        console.error('Error fetching public faculty records:', err);
+        setError('Faculty directory is currently unavailable.');
+      } finally {
+        setIsLoading(false);
       }
-      handleCloseForm();
-    } catch (error) {
-      console.error('Error saving faculty:', error);
-    }
-  };
+    };
+
+    fetchFaculty();
+  }, []);
+
+  if (selectedFaculty) {
+    return (
+      <FacultyProfile
+        member={selectedFaculty}
+        onBack={() => setSelectedFaculty(null)}
+      />
+    );
+  }
 
   return (
-    <div className="p-6 relative min-h-screen">
-      {/* Top Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-100">Faculty Management</h1>
-          <p className="text-sm text-slate-400">Manage departmental faculty members and profiles.</p>
+    <section className="min-h-screen bg-slate-950 text-slate-100 px-4 sm:px-6 lg:px-8 pt-28 pb-16">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-3">
+            <Users className="w-4 h-4" /> Department Directory
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">Our Faculty</h1>
+          <p className="text-sm text-slate-400 mt-3 max-w-2xl mx-auto">
+            Meet the faculty members guiding our students through computing, research, and innovation.
+          </p>
         </div>
-        <button
-          onClick={handleOpenAddForm}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-lg cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Faculty</span>
-        </button>
-      </div>
 
-      {/* Modal View */}
-      <AnimatePresence>
-        {isFormOpen && (
-          <FacultyForm
-            isOpen={isFormOpen}
-            initialData={editingFaculty}
-            onCancel={handleCloseForm}
-            onSubmit={handleSaveFaculty}
-          />
+        {isLoading && (
+          <p className="text-center text-sm text-slate-400 py-16">Loading faculty directory...</p>
         )}
-      </AnimatePresence>
-    </div>
+
+        {!isLoading && error && (
+          <p className="text-center text-sm text-red-400 py-16">{error}</p>
+        )}
+
+        {!isLoading && !error && facultyList.length === 0 && (
+          <p className="text-center text-sm text-slate-400 py-16">No faculty profiles are available yet.</p>
+        )}
+
+        {!isLoading && !error && facultyList.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {facultyList.map((member) => (
+              <FacultyCard
+                key={member._id || member.id}
+                member={member}
+                onViewProfile={() => setSelectedFaculty(member)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

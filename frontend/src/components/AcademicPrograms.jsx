@@ -51,9 +51,6 @@ export default function AcademicPrograms() {
   return (
     <section id="programs" className="relative py-24 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden min-h-[90vh] flex flex-col items-center justify-center select-none">
       
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-8 relative z-20">
         <span className="text-xs font-extrabold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md shadow-lg shadow-cyan-500/10 inline-block mb-3">

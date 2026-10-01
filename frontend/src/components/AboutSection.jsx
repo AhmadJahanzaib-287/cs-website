@@ -33,9 +33,6 @@ export default function AboutSection() {
       id="about"
       className="relative py-10 sm:py-14 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden"
     >
-      {/* Background Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
       <div className="max-w-6xl mx-auto relative z-10 space-y-12">
         {/* Text (left) + Carousel (right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">

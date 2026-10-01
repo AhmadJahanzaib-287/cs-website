@@ -51,10 +51,7 @@ export default function Loader() {
       }
     `}</style>
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0b0f19] text-slate-100 overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
-
-      <div className="relative w-72 h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
+      <div className="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center z-10">
         
         {/* 1. Outer Ring: Rotates 360 deg during first 1.5s, then STAYS LOCKED straight for 2.5s */}
         <div
@@ -99,10 +96,13 @@ export default function Loader() {
         className="mt-6 text-center space-y-1 z-20"
       >
         <h3 className="text-lg md:text-xl font-bold text-white tracking-wide">
-          DEPARTMENT OF COMPUTER SCIENCE
+          Department of Computer Science
         </h3>
-        <p className="text-xs text-cyan-400 font-mono tracking-widest uppercase animate-pulse">
-          PARS • Loading Hub...
+        <p className="text-xs md:text-sm text-cyan-400 font-semibold tracking-wide">
+          PARS Campus, University of Agriculture Faisalabad
+        </p>
+        <p className="text-[11px] text-slate-300 font-medium tracking-widest animate-pulse">
+          Loading .....
         </p>
       </motion.div>
     </div>

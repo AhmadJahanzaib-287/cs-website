@@ -115,8 +115,6 @@ export default function StatsVisionSection() {
   return (
     <section className="relative py-12 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden select-none min-h-[85vh] flex items-center justify-center">
       
-      {/* Background Glow Orb — same style as Academic Programs section so both blend seamlessly */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none" />
       {/* Main Content Container - Confined Width for Single Screen */}
       <div className="max-w-5xl mx-auto w-full space-y-10 relative z-10 flex flex-col justify-center">
         

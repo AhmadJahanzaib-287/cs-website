@@ -29,22 +29,40 @@ import { useAuth } from './context/AuthContext';
 const navbarVariants = {
   hidden: { 
     opacity: 0, 
-    y: -20, 
-    scaleX: 0 
+    y: -12
   },
   visible: { 
     opacity: 1, 
     y: 0, 
-    scaleX: 1,
     transition: { 
-      duration: 0.8, 
+      duration: 0.65, 
       ease: [0.16, 1, 0.3, 1],
-      delay: 0.1 
+      delay: 0.05
     } 
   }
 };
 
-export default function App() {
+class AppErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error) {
+    console.error('Application failed to render:', error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <Loader isLoading />;
+    }
+
+    return this.props.children;
+  }
+}
+
+function AppContent() {
   const { user } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,7 +98,7 @@ export default function App() {
   // the Navbar's own entrance animation has finished (duration 0.8s + delay 0.1s)
   useEffect(() => {
     if (!isLoading) {
-      const t = setTimeout(() => setContentReady(true), 900);
+      const t = setTimeout(() => setContentReady(true), 700);
       return () => clearTimeout(t);
     } else {
       setContentReady(false);
@@ -131,7 +149,7 @@ export default function App() {
       <motion.main
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: isLoading ? 0 : 1, y: isLoading ? 15 : 0 }}
-        transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
+        transition={{ duration: 0.65, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
         className="w-full flex flex-col pt-0"
       >
         <Routes>
@@ -193,5 +211,13 @@ export default function App() {
         {!isAdminRoute && <Footer />}
       </motion.main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppErrorBoundary>
+      <AppContent />
+    </AppErrorBoundary>
   );
 }

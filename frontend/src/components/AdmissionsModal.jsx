@@ -32,13 +32,13 @@ export default function AdmissionsModal({ isOpen, onClose }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="relative w-full max-w-md bg-slate-900/80 border border-white/10 rounded-3xl p-8 shadow-2xl text-white backdrop-blur-md"
+            className="relative w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 shadow-2xl text-slate-800"
           >
             {/* Close Button - Exact same style as LoginPage */}
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-5 right-5 text-slate-400 hover:text-white transition cursor-pointer"
+              className="absolute top-5 right-5 text-slate-500 hover:text-slate-900 transition cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-6 h-6" />
@@ -62,32 +62,32 @@ export default function AdmissionsModal({ isOpen, onClose }) {
               </div>
 
               {/* Admission Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-[11px] font-bold tracking-wider uppercase mb-2">
+              <div className="inline-flex items-center gap-1.5 text-cyan-700 text-[11px] font-bold tracking-wider uppercase mb-2">
                 <GraduationCap className="w-3.5 h-3.5" />
                 Admission Information
               </div>
 
               {/* Title */}
               <h3 className="text-xl font-bold">
-                Admissions at <span className="text-cyan-400">DCS @ PARS</span>
+                Admissions at <span className="text-cyan-400">DCS Pars Campus</span>
               </h3>
             </div>
 
             {/* 2. MAIN INFORMATION TEXT */}
             <div className="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed mb-5">
               <p>
-                Admissions to the Department of Computer Science at <strong className="text-white">DCS @ PARS</strong> are conducted according to the official admission policies of the <strong className="text-white">University of Agriculture Faisalabad (UAF)</strong>.
+                Admissions to the Department of Computer Science at <strong className="text-slate-800">DCS Pars Campus</strong> are conducted according to the official admission policies of the <strong className="text-slate-800">University of Agriculture Faisalabad (UAF)</strong>.
               </p>
               <p>
-                Undergraduate admissions at UAF generally open each year during <strong className="text-white">June & July</strong> based on the UAF entry test and merit guidelines.
+                Undergraduate admissions at UAF generally open each year during <strong className="text-slate-800">June & July</strong> based on the UAF entry test and merit guidelines.
               </p>
             </div>
 
             {/* 3. IMPORTANT NOTICE / HIGHLIGHT BOX */}
-            <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-start gap-3 mb-6">
+            <div className="p-3.5 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-start gap-3 mb-6">
               <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-cyan-200/90 font-medium leading-relaxed">
-                <strong className="text-cyan-300">Important:</strong> On the UAF admission portal, select the degree program offered specifically at the <strong className="text-white">DCS @ PARS campus</strong>.
+              <p className="text-xs text-cyan-800 font-medium leading-relaxed">
+                <strong className="text-cyan-900">Important:</strong> On the UAF admission portal, select the degree program offered specifically at the <strong className="text-slate-800">DCS Pars Campus</strong>.
               </p>
             </div>
 
@@ -96,7 +96,7 @@ export default function AdmissionsModal({ isOpen, onClose }) {
               href={UAF_ADMISSION_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-sm font-bold shadow-md shadow-blue-900/20 hover:scale-[1.01] active:scale-[0.98] transition cursor-pointer"
             >
               View UAF Admission Information
               <ExternalLink className="w-4 h-4" />

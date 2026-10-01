@@ -43,9 +43,6 @@ export default function ApplicationGenerator() {
 
     
       
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[700px] h-[220px] sm:h-[350px] bg-cyan-500/10 rounded-full blur-[120px] sm:blur-[160px] pointer-events-none" />
-
       {/* Page Title */}
       <div className="text-center max-w-3xl mx-auto mb-12 relative z-10">
         <span className="text-xs font-extrabold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md inline-block mb-3">

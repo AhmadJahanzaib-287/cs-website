@@ -191,7 +191,7 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
       navigate('/');
     }
   }} 
-  className="flex items-center gap-2.5 px-2 py-1 rounded-full hover:bg-slate-800/40 transition duration-200 cursor-pointer"
+  className="flex items-center gap-2.5 cursor-pointer"
 >
             <img 
               src="/dcs-logo.png" 
@@ -202,8 +202,13 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
               loading="eager"
               className="w-7 h-7 object-contain aspect-square shrink-0" 
             />
-            <span className="text-sm font-bold tracking-tight text-white">
-              DCS @ PARS
+            <span className="max-w-[230px] leading-tight tracking-tight text-white">
+              <span className="block whitespace-nowrap text-[11px] sm:text-[13px] font-bold">
+                Department of Computer Science
+              </span>
+              <span className="block text-[9px] sm:text-[10px] font-semibold text-slate-300">
+                PARS, UAF
+              </span>
             </span>
           </div>
           {/* Navigation Items */}
@@ -354,7 +359,7 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
             ) : (
               <button 
   onClick={handleOpenLoginModal}
-  className="px-3.5 py-1.5 rounded-full hover:bg-slate-800/60 transition duration-200 cursor-pointer flex items-center justify-center"
+  className="px-4 py-1.5 rounded-full hover:bg-slate-800/60 transition duration-200 cursor-pointer flex items-center justify-center"
 >
   <StaggeredRollText text="Log in" />
 </button>
@@ -362,7 +367,7 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
 
             <button 
   onClick={() => setIsAdmissionOpen(true)}
-  className="px-4 py-1.5 text-xs font-semibold text-slate-900 bg-white hover:bg-slate-200 rounded-full transition duration-200 shadow-sm cursor-pointer"
+  className="px-4 py-1.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition cursor-pointer"
 >
   Apply Now
 </button>
@@ -465,7 +470,7 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
     setIsMobileMenuOpen(false);
     setIsAdmissionOpen(true);
   }}
-  className="w-full py-2.5 text-xs font-semibold text-slate-900 bg-white hover:bg-slate-200 rounded-xl transition duration-200 shadow-sm cursor-pointer"
+  className="w-full py-2.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 active:scale-[0.98] transition cursor-pointer"
 >
   Apply Now
 </button>

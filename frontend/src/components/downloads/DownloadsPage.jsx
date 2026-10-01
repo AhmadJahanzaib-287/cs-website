@@ -31,8 +31,6 @@ export default function DownloadsPage() {
 
   return (
     <section className="relative py-28 px-4 sm:px-8 bg-[#0b0f19] min-h-screen text-slate-100">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none" />
-
       <div className="text-center max-w-2xl mx-auto mb-12 relative z-10">
         <span className="text-xs font-extrabold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md inline-block mb-3">
           Portal Resources

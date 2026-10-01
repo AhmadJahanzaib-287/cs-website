@@ -88,7 +88,7 @@ export default function HeroSection({ isLoading, contentReady }) {
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-[#0b0f19]">
         
        <div 
-          className="absolute top-0 right-0 w-full md:w-[70%] h-full opacity-70"
+          className="absolute top-0 right-0 w-full md:w-[70%] h-full opacity-100"
           style={{
             maskImage: 'linear-gradient(to right, transparent 0%, black 32%)',
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 32%)'
@@ -105,7 +105,7 @@ export default function HeroSection({ isLoading, contentReady }) {
           <div className="absolute inset-0 bg-gradient-to-t from-gray-100 via-gray-100/10 to-gray-100/40" />
         </div>
 
-        <div className="absolute left-6 top-8 opacity-[0.09] font-mono text-[11px] text-cyan-400 hidden md:block leading-relaxed select-none pointer-events-none">
+        <div className="absolute left-6 top-8 opacity-[0.16] font-mono text-[11px] text-cyan-400 hidden md:block leading-relaxed select-none pointer-events-none">
           <pre>{`
   // PARS CS Core Module
   import { Department } from '@pars/cs';
@@ -122,7 +122,6 @@ export default function HeroSection({ isLoading, contentReady }) {
         </div>
 
         {/* Academic Programs style matching central glow & vignette */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] md:w-[600px] md:h-[600px] bg-cyan-500/10 rounded-full blur-[80px] md:blur-[150px] pointer-events-none" />
         <div className="absolute top-0 right-0 w-60 h-60 md:w-96 md:h-96 bg-purple-600/10 rounded-full blur-[70px] md:blur-[140px] pointer-events-none" />
       </div>
 
