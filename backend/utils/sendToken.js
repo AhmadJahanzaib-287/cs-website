@@ -4,10 +4,15 @@ import jwt from 'jsonwebtoken';
  * Generates JWT Token and sends secure Cookie response
  */
 export const sendToken = (user, statusCode, res, message = 'Success') => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET must be configured in backend/.env');
+  }
+
   // 1. Generate JWT Payload
   const token = jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET || 'dcs_uaf_pars_production_secret_key_2026_super_secure',
+    jwtSecret,
     { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 

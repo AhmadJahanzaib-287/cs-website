@@ -11,31 +11,37 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const seedAdmin = async () => {
   try {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminName = process.env.ADMIN_NAME || 'DCS Admin';
+
+    if (!adminEmail || !adminPassword || adminPassword.length < 12) {
+      throw new Error('Set ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters in backend/.env');
+    }
+
     const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/dcs_uaf_db';
 
     await mongoose.connect(mongoUri);
     console.log('\x1b[32m[Database Connected]: Ready for Seeding...\x1b[0m');
 
     // Existing admin check
-    const adminExists = await User.findOne({ email: 'admin@uaf.edu.pk' });
+    const adminExists = await User.findOne({ email: adminEmail });
 
     if (adminExists) {
       console.log('\x1b[33m[Seeder Warning]: Admin user already exists!\x1b[0m');
       process.exit(0);
     }
 
-    // Default Admin Credentials
     const adminData = {
-      name: 'DCS Admin',
-      email: 'admin@uaf.edu.pk',
-      password: 'adminpassword123',
+      name: adminName,
+      email: adminEmail,
+      password: adminPassword,
       role: 'superadmin',
     };
 
     await User.create(adminData);
     console.log('\x1b[32m[Seeder Success]: Admin user created successfully!\x1b[0m');
-    console.log('\x1b[36mEmail: admin@uaf.edu.pk\x1b[0m');
-    console.log('\x1b[36mPassword: adminpassword123\x1b[0m');
+    console.log(`\x1b[36mEmail: ${adminEmail}\x1b[0m`);
 
     process.exit(0);
   } catch (error) {
