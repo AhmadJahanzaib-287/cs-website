@@ -1,14 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, GraduationCap, Cpu, Database, ShieldCheck, BrainCircuit, Code2 } from 'lucide-react';
-
-// TODO: swap these sample images for real department/UAF photos later —
-// just replace the paths below, nothing else needs to change.
-const carouselImages = [
-  { src: '/dept-building.png', caption: 'DCS @ PARS Campus, Faisalabad' },
-  { src: '/dcs-logo.png', caption: 'Department of Computer Science' },
-  { src: '/uaf-logo.png', caption: 'University of Agriculture Faisalabad' },
-];
+import React, { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { ArrowLeft, ArrowRight, ArrowUpRight, BrainCircuit, Code2, Cpu, Database, ShieldCheck } from 'lucide-react';
 
 const programs = [
   { name: 'BS Computer Science', icon: Code2 },
@@ -18,163 +10,193 @@ const programs = [
   { name: 'BS Data Science', icon: ShieldCheck },
 ];
 
+const aboutSlides = [
+  {
+    src: '/dept-building.png',
+    alt: 'Department of Computer Science building at PARS Campus',
+    title: 'Our home at PARS Campus',
+    detail: 'Department of Computer Science · Faisalabad',
+    fit: 'cover',
+  },
+  {
+    src: '/dcs-logo.png',
+    alt: 'Department of Computer Science logo',
+    title: 'Department of Computer Science',
+    detail: 'Learning, research, and practical computing',
+    fit: 'contain',
+  },
+  {
+    src: '/uaf-logo.png',
+    alt: 'University of Agriculture Faisalabad logo',
+    title: 'University of Agriculture Faisalabad',
+    detail: 'A proud part of UAF · PARS Campus',
+    fit: 'contain',
+  },
+];
+
 export default function AboutSection() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, []);
+    if (prefersReducedMotion) return undefined;
+
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % aboutSlides.length);
+    }, 4500);
+
+    return () => window.clearInterval(timer);
+  }, [prefersReducedMotion]);
+
+  const changeSlide = (direction) => {
+    setActiveSlide((current) => (current + direction + aboutSlides.length) % aboutSlides.length);
+  };
+
+  const activeAboutSlide = aboutSlides[activeSlide];
 
   return (
-    <section
-      id="about"
-      className="relative py-10 sm:py-14 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden"
-    >
-      <div className="max-w-6xl mx-auto relative z-10 space-y-12">
-        {/* Text (left) + Carousel (right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          {/* LEFT: Header + Praise Text */}
-          <div className="space-y-6 text-center lg:text-left">
-            <motion.span
-              initial={{ opacity: 0, y: -10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold uppercase tracking-widest"
-            >
-              <Building2 className="w-3.5 h-3.5" /> About Our Department
-            </motion.span>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl sm:text-4xl font-black text-white tracking-tight"
-            >
-              Department of Computer Science
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-slate-400 text-sm sm:text-base leading-relaxed"
-            >
-              A constituent department of the{' '}
-              <span className="text-cyan-400 font-semibold">
-                University of Agriculture Faisalabad (PARS Campus)
-              </span>
-              , dedicated to producing industry-ready graduates through modern,
-              research-driven computing education.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3"
-            >
-              <p className="text-slate-300 text-sm sm:text-[15px] leading-relaxed">
-                Since its establishment, the Department of Computer Science has grown into one of
-                the region's most trusted destinations for computing education — combining a
-                rigorous, industry-aligned curriculum with hands-on research in artificial
-                intelligence, software engineering, and emerging technologies. Our faculty of
-                PhD scholars and experienced practitioners work closely with students to build
-                not just technical skill, but the critical thinking and problem-solving mindset
-                needed to lead in a fast-changing digital world.
-              </p>
-              <p className="text-slate-300 text-sm sm:text-[15px] leading-relaxed">
-                With state-of-the-art labs, active research collaborations, and a strong track
-                record of graduate placement, DCS @ PARS continues to shape the next generation
-                of engineers, researchers, and innovators who carry the department's reputation
-                for excellence into industry and academia alike.
-              </p>
-            </motion.div>
-          </div>
-
-          {/* RIGHT: Image Carousel Window */}
+    <section id="about" className="relative overflow-hidden bg-[#f3f7fb] px-4 py-16 text-[#17243b] sm:px-8 sm:py-24">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border border-[#dce7f1]" />
+      <div className="relative mx-auto max-w-6xl">
+        <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
           <motion.div
-            initial={{ opacity: 0, y: 25 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950"
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.55 }}
+            className="order-2 lg:order-1"
           >
-            <div className="relative w-full h-[280px] sm:h-[340px]">
+            <p className="mb-4 inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]">
+              <span className="h-px w-7 bg-[#0e7490]" /> About our department
+            </p>
+            <h2 className="max-w-xl text-3xl font-extrabold leading-tight text-[#17243b] sm:text-5xl">
+              Shaping the future through computing.
+            </h2>
+            <p className="mt-5 text-base leading-7 text-[#42536a] sm:text-lg">
+              The Department of Computer Science at the University of Agriculture Faisalabad, PARS Campus, brings together modern computing education, research, and practical problem-solving.
+            </p>
+            <p className="mt-4 text-sm leading-7 text-[#69788d] sm:text-base">
+              Students build a strong foundation in computer science while exploring fields such as software engineering, artificial intelligence, information technology, and data science. Our goal is to help each student develop the knowledge and confidence to contribute in a rapidly changing digital world.
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-2.5" aria-label="Department focus areas">
+              {['Education', 'Research', 'Innovation'].map((focus) => (
+                <span key={focus} className="inline-flex items-center gap-2 rounded-full border border-[#d5e1ec] bg-white/75 px-3 py-1.5 text-xs font-semibold text-[#40516a]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#0e7490]" /> {focus}
+                </span>
+              ))}
+            </div>
+
+            <a
+              href="#programs"
+              className="mt-7 inline-flex items-center gap-2 rounded-md bg-[#1e3a8a] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
+            >
+              Explore degree programs <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </motion.div>
+
+          <motion.figure
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+            className="order-1 lg:order-2"
+          >
+            <div className="relative aspect-[1.2] overflow-hidden rounded-xl border border-white/80 bg-white shadow-[0_24px_70px_-38px_rgba(23,36,59,0.4)] sm:aspect-[1.38]">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeSlide}
-                  initial={{ opacity: 0, scale: 1.02 }}
+                  key={activeAboutSlide.src}
+                  initial={{ opacity: 0, scale: 1.015 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950"
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.55 }}
+                  className={`absolute inset-0 flex items-center justify-center ${activeAboutSlide.fit === 'contain' ? 'bg-white p-10 sm:p-16' : 'bg-[#dbe5ed]'}`}
                 >
                   <img
-                    src={carouselImages[activeSlide].src}
-                    alt={carouselImages[activeSlide].caption}
-                    className="max-w-[60%] max-h-[60%] object-contain drop-shadow-2xl"
+                    src={activeAboutSlide.src}
+                    alt={activeAboutSlide.alt}
+                    className={`shrink-0 ${activeAboutSlide.fit === 'contain' ? 'h-[70%] w-[70%] object-contain' : 'h-full w-full object-cover object-center'}`}
+                    loading="lazy"
                   />
+                  {activeAboutSlide.fit === 'cover' && (
+                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#101d32]/70 to-transparent" />
+                  )}
                 </motion.div>
               </AnimatePresence>
 
-              {/* Caption */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent px-5 pt-10 pb-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-200 text-center">
-                  {carouselImages[activeSlide].caption}
-                </p>
+              <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 p-4 sm:p-5">
+                <div className={activeAboutSlide.fit === 'contain' ? 'text-[#17243b]' : 'text-white'}>
+                  <p className="text-sm font-bold sm:text-base">{activeAboutSlide.title}</p>
+                  <p className={`mt-1 text-xs ${activeAboutSlide.fit === 'contain' ? 'text-[#69788d]' : 'text-white/80'}`}>
+                    {activeAboutSlide.detail}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => changeSlide(-1)}
+                    aria-label="Previous About image"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dce5ef] bg-white/95 text-[#1e3a8a] shadow-sm transition hover:bg-[#1e3a8a] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => changeSlide(1)}
+                    aria-label="Next About image"
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-[#dce5ef] bg-white/95 text-[#1e3a8a] shadow-sm transition hover:bg-[#1e3a8a] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            {/* Dot Indicators */}
-            <div className="flex items-center justify-center gap-2 py-4 bg-slate-950">
-              {carouselImages.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveSlide(i)}
-                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                    activeSlide === i ? 'w-6 bg-cyan-400' : 'w-1.5 bg-slate-700 hover:bg-slate-600'
-                  }`}
-                  aria-label={`Show slide ${i + 1}`}
-                />
-              ))}
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2" role="group" aria-label="Choose About image">
+                {aboutSlides.map((slide, index) => (
+                  <button
+                    key={slide.src}
+                    type="button"
+                    onClick={() => setActiveSlide(index)}
+                    aria-label={`Show image ${index + 1}: ${slide.title}`}
+                    aria-current={activeSlide === index ? 'true' : undefined}
+                    className={`h-2 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490] ${activeSlide === index ? 'w-8 bg-[#1e3a8a]' : 'w-2 bg-[#b8c7d7] hover:bg-[#0e7490]'}`}
+                  />
+                ))}
+              </div>
+              <p className="text-xs font-semibold text-[#69788d]">UAF · PARS Campus</p>
             </div>
-          </motion.div>
+          </motion.figure>
         </div>
 
-        {/* Programs Offered (full width, below) */}
-        <div>
-          <motion.h3
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center text-sm font-extrabold uppercase tracking-widest text-slate-400 mb-6 flex items-center justify-center gap-2"
-          >
-            <GraduationCap className="w-4 h-4 text-cyan-400" /> 5 Degree Programs Offered
-          </motion.h3>
+        <div id="programs" className="mt-16 border-t border-[#d5e1ec] pt-8 sm:mt-20 sm:pt-10">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase text-[#0e7490]">Study with us</p>
+              <h3 className="mt-1 text-2xl font-extrabold text-[#17243b]">Degree programs</h3>
+            </div>
+            <p className="text-sm text-[#69788d]">Find your direction in computing.</p>
+          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {programs.map((program, i) => {
+          <div className="grid grid-cols-1 divide-y divide-[#d5e1ec] sm:grid-cols-2 sm:gap-x-10 sm:divide-y-0 lg:grid-cols-5">
+            {programs.map((program, index) => {
               const Icon = program.icon;
               return (
                 <motion.div
                   key={program.name}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  whileHover={{ y: -3 }}
-                  className="flex flex-col items-center text-center gap-2.5 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 backdrop-blur-xl shadow-lg transition-colors"
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ delay: index * 0.06, duration: 0.35 }}
+                  className="flex min-h-20 items-center gap-3 py-4 lg:border-l lg:border-[#d5e1ec] lg:pl-4 lg:first:border-l-0 lg:first:pl-0"
                 >
-                  <div className="p-2.5 rounded-xl bg-blue-950 border border-blue-800/60 text-blue-400 shadow-lg">
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <p className="text-[11px] font-bold text-slate-200 leading-snug">{program.name}</p>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#edf4f8] text-[#1e3a8a]">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="mb-1 block text-[10px] font-bold uppercase text-[#0e7490]">Program 0{index + 1}</span>
+                    <span className="block text-sm font-bold leading-snug text-[#25354d]">{program.name}</span>
+                  </span>
                 </motion.div>
               );
             })}

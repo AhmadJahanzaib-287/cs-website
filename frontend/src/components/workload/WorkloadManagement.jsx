@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Hammer } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import WorkloadListPage from './components/WorkloadListPage';
 import RegisterClassesStep from './components/RegisterClassesStep';
 import AddTeachersStep from './components/AddTeachersStep';
@@ -22,60 +22,52 @@ export default function WorkloadManagement() {
 
   return (
     <div className="w-full min-h-[70vh] py-6 px-2 sm:px-4">
-      <AnimatePresence mode="wait">
-        {!activeWorkload ? (
-          <motion.div
-            key="workload-list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <WorkloadListPage onOpenWorkload={handleOpenWorkload} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="workload-wizard"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-5xl mx-auto"
-          >
+      {!activeWorkload ? (
+        <WorkloadListPage onOpenWorkload={handleOpenWorkload} />
+      ) : (
+        <div className="w-full max-w-5xl mx-auto">
             <button
               onClick={handleBackToList}
-              className="flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white transition mb-6 cursor-pointer"
+              className="mb-4 inline-flex items-center gap-2 rounded-md border border-[#dce5ef] bg-white px-3 py-2 text-xs font-semibold text-[#52647b] transition hover:border-[#b9c9d8] hover:text-[#1e3a8a]"
             >
               <ArrowLeft className="w-4 h-4" /> Back to Workloads
             </button>
 
-            {activeWorkload.currentStep === 1 ? (
-              <RegisterClassesStep
-                workload={activeWorkload}
-                onNext={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
-              />
-            ) : activeWorkload.currentStep === 2 ? (
-              <AddTeachersStep
-                workload={activeWorkload}
-                onNext={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
-                onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 1 })}
-              />
-           ) : activeWorkload.currentStep === 3 ? (
-              <AssignWorkloadStep
-                workload={activeWorkload}
-                onFinish={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
-                onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 2 })}
-              />
-            ) : (
-              <DownloadStep
-                workload={activeWorkload}
-                onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 3 })}
-              />
-            
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <AnimatePresence mode="wait" initial={false}>
+              {activeWorkload.currentStep === 1 ? (
+                <RegisterClassesStep
+                  key="register-classes"
+                  workload={activeWorkload}
+                  onNext={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
+                  onClose={handleBackToList}
+                />
+              ) : activeWorkload.currentStep === 2 ? (
+                <AddTeachersStep
+                  key="add-teachers"
+                  workload={activeWorkload}
+                  onNext={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
+                  onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 1 })}
+                  onClose={handleBackToList}
+                />
+              ) : activeWorkload.currentStep === 3 ? (
+                <AssignWorkloadStep
+                  key="assign-workload"
+                  workload={activeWorkload}
+                  onFinish={(updatedWorkload) => setActiveWorkload(updatedWorkload)}
+                  onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 2 })}
+                  onClose={handleBackToList}
+                />
+              ) : (
+                <DownloadStep
+                  key="download-report"
+                  workload={activeWorkload}
+                  onBack={() => setActiveWorkload({ ...activeWorkload, currentStep: 3 })}
+                  onClose={handleBackToList}
+                />
+              )}
+            </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

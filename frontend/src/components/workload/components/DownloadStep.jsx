@@ -25,7 +25,7 @@ const ordinal = (n) => {
 const getClassLabel = (c) =>
   `${ordinal(c.semesterNumber)} Semester ${c.degree}${c.section ? ` Sec ${c.section}` : ''} (${c.session})`;
 
-export default function DownloadStep({ workload, onBack }) {
+export default function DownloadStep({ workload, onBack, onClose }) {
   const [reportType, setReportType] = useState('class-wise');
   const [filterOptions, setFilterOptions] = useState([]); // [{id, label}]
   const [filterLabel, setFilterLabel] = useState('All');
@@ -129,13 +129,13 @@ export default function DownloadStep({ workload, onBack }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/50 p-3 backdrop-blur-sm sm:p-5">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-5xl bg-white border border-gray-100 rounded-3xl shadow-2xl overflow-hidden text-gray-800 flex flex-col relative"
+        className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#dce5ef] bg-white text-[#25354d] shadow-2xl sm:max-h-[calc(100dvh-2.5rem)]"
       >
         {/* Loading Overlay Window */}
         <AnimatePresence>
@@ -177,11 +177,8 @@ export default function DownloadStep({ workload, onBack }) {
               </p>
             </div>
           </div>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
-            >
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="Close workload setup" title="Close workload setup" className="rounded-md p-2 text-[#69788d] transition hover:bg-white hover:text-[#17243b]">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -258,11 +255,11 @@ export default function DownloadStep({ workload, onBack }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-3.5 bg-gray-50/50 border-t border-gray-100 shrink-0">
+        <div className="flex items-center justify-between border-t border-[#e3eaf1] bg-[#f7fafc] px-4 py-3.5 sm:px-6">
           <button
             type="button"
             onClick={onBack}
-            className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+            className="rounded-md border border-[#dce5ef] bg-white px-4 py-2 text-xs font-bold text-[#52647b] transition hover:bg-[#f3f7fb]"
           >
             ← Previous
           </button>
@@ -270,7 +267,7 @@ export default function DownloadStep({ workload, onBack }) {
             type="button"
             onClick={handleDownload}
             disabled={isGenerating}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#1e3a8a] hover:bg-[#1b337a] text-xs font-bold text-white shadow-md transition cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
+            className="flex items-center gap-2 rounded-md bg-[#1e3a8a] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#172e6e] disabled:pointer-events-none disabled:opacity-60"
           >
             {isGenerating ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />

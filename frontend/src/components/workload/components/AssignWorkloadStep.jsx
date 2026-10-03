@@ -17,7 +17,7 @@ const ordinal = (n) => {
 const getClassLabel = (c) =>
   `${ordinal(c.semesterNumber)} Semester ${c.degree}${c.section ? ` Sec ${c.section}` : ''} (${c.session})`;
 
-export default function AssignWorkloadStep({ workload, onFinish, onBack }) {
+export default function AssignWorkloadStep({ workload, onFinish, onBack, onClose }) {
   const [classes, setClasses] = useState([]);
   const [workloadTeachers, setWorkloadTeachers] = useState([]);
   const [masterCourses, setMasterCourses] = useState([]);
@@ -214,18 +214,18 @@ export default function AssignWorkloadStep({ workload, onFinish, onBack }) {
   const activeClass = classes.find((c) => c._id === activeClassId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/50 p-3 backdrop-blur-sm sm:p-5">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-5xl bg-white border border-gray-100 rounded-3xl shadow-2xl overflow-hidden text-gray-800 flex flex-col"
+        className="max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#dce5ef] bg-white text-[#25354d] shadow-2xl sm:max-h-[calc(100dvh-2.5rem)]"
       >
         {/* Header - Matching Add Teachers exactly */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 shrink-0">
+        <div className="flex items-center justify-between border-b border-[#e3eaf1] bg-[#f7fafc] px-4 py-3.5 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a]">
+            <div className="rounded-lg border border-[#dce5ef] bg-white p-2 text-[#1e3a8a]">
               <ClipboardList className="w-5 h-5" />
             </div>
             <div>
@@ -237,11 +237,8 @@ export default function AssignWorkloadStep({ workload, onFinish, onBack }) {
               </p>
             </div>
           </div>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
-            >
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="Close workload setup" title="Close workload setup" className="rounded-md p-2 text-[#69788d] transition hover:bg-white hover:text-[#17243b]">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -252,7 +249,7 @@ export default function AssignWorkloadStep({ workload, onFinish, onBack }) {
             <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading data...
           </div>
         ) : (
-          <div className="px-6 py-4 space-y-3">
+            <div className="space-y-3 px-4 py-4 sm:px-6">
             {/* Class Tabs */}
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
               {classes.map((c) => (

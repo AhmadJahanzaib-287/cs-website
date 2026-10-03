@@ -80,14 +80,14 @@ export default function ApplicationPreview({ formData, recipientObj, printableRe
     <div className="flex flex-col items-center w-full overflow-x-hidden">
       
       {/* Top Action Controls */}
-      <div className="w-full max-w-[210mm] flex items-center justify-between mb-4 bg-slate-900/80 p-3 rounded-xl border border-slate-800 backdrop-blur-md">
+      <div className="mb-4 flex w-full max-w-[210mm] items-center justify-between rounded-md border border-[#dce5ef] bg-white/90 p-3 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold text-slate-300">Live A4 Paper Preview</span>
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          <span className="text-xs font-semibold text-[#52647b]">Live A4 Paper Preview</span>
         </div>
         <button
           onClick={handleDownloadPDF}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 rounded-lg shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
+          className="flex items-center gap-2 rounded-md bg-[#1e3a8a] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
         >
           <Download className="w-4 h-4" /> Download PDF
         </button>

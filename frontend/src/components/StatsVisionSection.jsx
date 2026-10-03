@@ -47,10 +47,10 @@ const compactStatsData = [
 
 const getUrgencyStyle = (priority) => {
   if (priority === 'Emergency') {
-    return 'text-red-400 bg-red-500/10 border-red-500/20';
+    return 'text-red-700 bg-red-50 border-red-200';
   }
   if (priority === 'Important') {
-    return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+    return 'text-amber-800 bg-amber-50 border-amber-200';
   }
   return null;
 };
@@ -86,7 +86,7 @@ function ShuffleNumber({ value, delay = 0 }) {
     <motion.h3
       onViewportEnter={() => setTimeout(runShuffle, delay)}
       viewport={{ once: true, amount: 0.6 }}
-      className="text-2xl sm:text-3xl font-black text-white tracking-tighter mb-1 tabular-nums"
+      className="mb-1 text-3xl font-extrabold tabular-nums text-[#17243b] sm:text-4xl"
     >
       {display}
     </motion.h3>
@@ -113,20 +113,22 @@ export default function StatsVisionSection() {
   }, []);
 
   return (
-    <section className="relative py-12 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden select-none min-h-[85vh] flex items-center justify-center">
-      
-      {/* Main Content Container - Confined Width for Single Screen */}
-      <div className="max-w-5xl mx-auto w-full space-y-10 relative z-10 flex flex-col justify-center">
+    <section className="relative overflow-hidden bg-[#f3f7fb] px-4 py-16 text-[#17243b] sm:px-8 sm:py-20">
+      <div className="mx-auto w-full max-w-6xl space-y-14">
         
         {/* ================= TOP SECTION: STATS CARDS ================= */}
         <div>
-          <div className="mb-6 flex justify-center w-full">
-            <span className="text-xs sm:text-sm font-extrabold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md shadow-lg shadow-cyan-500/10">
-              Department Compact Stats
-            </span>
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]">
+                <span className="h-px w-7 bg-[#0e7490]" /> Department at a glance
+              </p>
+              <h2 className="text-2xl font-extrabold text-[#17243b] sm:text-3xl">A growing community of innovators</h2>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-[#69788d]">The people, spaces, and outcomes shaping our department.</p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 border-y border-[#d5e1ec] sm:grid-cols-4">
             {compactStatsData.map((stat) => {
               const Icon = stat.icon;
               return (
@@ -140,19 +142,18 @@ export default function StatsVisionSection() {
                     ease: [0.16, 1, 0.3, 1],
                     delay: stat.id * 0.1
                   }}
-                  whileHover={{ y: -3, transition: { duration: 0.2 } }}
-                  className="relative p-5 sm:p-6 rounded-2xl bg-slate-950/30 border border-slate-800 hover:border-blue-700/60 backdrop-blur-2xl shadow-xl flex flex-col items-center text-center group overflow-hidden transition-all duration-300"
+                  className="group flex min-h-40 flex-col items-start justify-center border-b border-[#d5e1ec] py-5 pl-3 pr-2 transition-colors hover:bg-white/45 sm:min-h-44 sm:border-b-0 sm:px-5 sm:first:pl-0 sm:last:pr-0 [&:nth-child(odd)]:border-r [&:nth-child(odd)]:border-[#d5e1ec] sm:[&:nth-child(odd)]:border-r-0 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-[#d5e1ec]"
                 >
-                  <div className="p-2.5 rounded-xl bg-blue-950 border border-blue-800/60 text-blue-400 shadow-lg mb-3">
-                    <Icon className="w-5 h-5" />
+                  <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef] transition-colors group-hover:text-[#0e7490]">
+                    <Icon className="h-4 w-4" />
                   </div>
 
                   <ShuffleNumber value={stat.value} delay={stat.id * 100} />
 
-                  <p className="text-xs font-bold text-slate-200">
+                  <p className="text-xs font-bold text-[#34435a]">
                     {stat.title}
                   </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
+                  <p className="mt-0.5 text-xs text-[#69788d]">
                     {stat.subtitle}
                   </p>
                 </motion.div>
@@ -162,7 +163,7 @@ export default function StatsVisionSection() {
         </div>
 
         {/* ================= BOTTOM SECTION: VISION & ANNOUNCEMENTS ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 items-start gap-10 md:grid-cols-12 md:gap-12">
           
           {/* LEFT: Vision — plain flowing text, no card/panel treatment */}
           <motion.div 
@@ -170,18 +171,18 @@ export default function StatsVisionSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="md:col-span-7 px-1 sm:px-2 py-2"
+            className="py-1 md:col-span-7 md:pr-8"
           >
-            <div className="flex items-center gap-2.5 text-cyan-400 mb-4">
-              <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20 backdrop-blur-md">
-                <Target className="w-5 h-5" />
+            <div className="mb-5 flex items-center gap-3 text-[#0e7490]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
+                <Target className="h-5 w-5" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+              <h2 className="text-xl font-extrabold leading-snug text-[#17243b] sm:text-2xl">
                 Our Vision & Educational Mission
               </h2>
             </div>
 
-            <p className="text-slate-300 text-xs sm:text-[13px] leading-relaxed font-normal max-w-xl">
+            <p className="max-w-2xl text-sm font-normal leading-7 text-[#58677d] sm:text-base">
               The Department of Computer Science at the University of Agriculture Faisalabad (PARS Campus)
               is dedicated to building a strong foundation of computing excellence in the region. Through
               industry-aligned curricula spanning Software Engineering, Artificial Intelligence, Cybersecurity,
@@ -199,49 +200,51 @@ export default function StatsVisionSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="md:col-span-5 rounded-2xl bg-slate-950/30 border border-slate-800/60 p-5 sm:p-6 backdrop-blur-2xl shadow-2xl flex flex-col"
+            className="border-t border-[#d5e1ec] pt-5 md:col-span-5 md:border-l md:border-t-0 md:pl-8 md:pt-0"
           >
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800/60 flex-wrap gap-1">
-              <div className="flex items-center gap-2 text-amber-400">
-                <Bell className="w-5 h-5 animate-bounce" />
-                <h3 className="text-xl font-extrabold text-white tracking-tight">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#d5e1ec] pb-3">
+              <div className="flex items-center gap-2.5 text-[#1e3a8a]">
+                <Bell className="h-4 w-4" />
+                <h3 className="text-lg font-extrabold tracking-tight text-[#17243b]">
                   Notices Feed
                 </h3>
               </div>
+              <span className="text-xs font-medium text-[#69788d]">Latest updates</span>
             </div>
 
             {notices.length === 0 ? (
-              <p className="text-xs text-slate-500 text-center py-8">
+              <p className="py-8 text-sm text-[#69788d]">
                 No active notices right now.
               </p>
             ) : (
-              <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+              <div className="max-h-[340px] divide-y divide-[#dce5ef] overflow-y-auto pr-1">
                 {notices.map((item) => {
                   const urgencyStyle = getUrgencyStyle(item.priority);
                   return (
-                    <div 
+                    <button
                       key={item._id}
                       onClick={() => setSelectedNotice(item)}
-                      className="p-3 rounded-lg bg-slate-900/30 border border-slate-800/50 hover:border-cyan-500/30 transition-all duration-200 cursor-pointer group backdrop-blur-md"
+                      type="button"
+                      className="group w-full py-3 text-left transition-colors hover:bg-white/55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#0e7490]"
                     >
-                      <div className="flex items-center justify-between text-[9px] text-slate-400 mb-1">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-500" />
+                      <div className="mb-1.5 flex items-center justify-between gap-3 text-xs text-[#69788d]">
+                        <span className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5 text-[#0e7490]" />
                           {new Date(item.startDate).toLocaleDateString('en-US', {
                             month: 'short',
                             day: '2-digit',
                           })}
                         </span>
                         {urgencyStyle && (
-                          <span className={`px-1.5 py-0.2 text-[8px] font-bold rounded-sm border ${urgencyStyle}`}>
+                          <span className={`rounded-sm border px-2 py-0.5 text-[10px] font-bold ${urgencyStyle}`}>
                             {item.priority}
                           </span>
                         )}
                       </div>
-                      <h4 className="text-[11px] font-semibold text-slate-200 group-hover:text-cyan-400 transition-colors line-clamp-1">
+                      <h4 className="text-sm font-semibold leading-snug text-[#25354d] transition-colors group-hover:text-[#0e7490]">
                         {item.title}
                       </h4>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -269,28 +272,29 @@ export default function StatsVisionSection() {
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm bg-slate-900/95 border border-slate-800 rounded-3xl shadow-2xl backdrop-blur-2xl overflow-hidden"
+              className="relative w-full max-w-md overflow-hidden rounded-xl border border-[#dce5ef] bg-white shadow-2xl"
             >
               <button
                 onClick={() => setSelectedNotice(null)}
-                className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+                aria-label="Close notice"
+                className="absolute right-4 top-4 rounded-md p-2 text-[#69788d] transition hover:bg-[#edf3f8] hover:text-[#17243b]"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="flex flex-col items-center text-center px-7 pt-10 pb-8 sm:px-8 sm:pt-11 sm:pb-9">
-                <div className="w-16 h-16 rounded-2xl border bg-cyan-500/10 border-cyan-500/30 flex items-center justify-center mb-5">
-                  <Bell className="w-8 h-8 text-cyan-400" />
+              <div className="flex flex-col items-start px-6 pb-7 pt-10 text-left sm:px-8 sm:pb-8">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md border border-[#dce5ef] bg-[#f3f7fb]">
+                  <Bell className="h-5 w-5 text-[#1e3a8a]" />
                 </div>
 
-                <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider border bg-slate-800/60 text-slate-300 border-slate-700 mb-4">
+                <span className="mb-3 rounded-sm border border-[#dce5ef] bg-[#f3f7fb] px-2.5 py-1 text-[10px] font-extrabold uppercase text-[#52647b]">
                   {selectedNotice.priority} Announcement
                 </span>
 
-                <h3 className="text-lg font-black text-white mb-2.5 leading-snug">
+                <h3 className="mb-2.5 pr-8 text-xl font-extrabold leading-snug text-[#17243b]">
                   {selectedNotice.title}
                 </h3>
-                <p className="text-sm text-slate-300 leading-relaxed mb-5">
+                <p className="mb-5 whitespace-pre-wrap text-sm leading-7 text-[#58677d]">
                   {selectedNotice.description}
                 </p>
 
@@ -299,14 +303,14 @@ export default function StatsVisionSection() {
                     href={selectedNotice.linkUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition mb-5"
+                    className="mb-5 inline-flex items-center gap-1.5 text-sm font-bold text-[#1e3a8a] transition hover:text-[#0e7490]"
                   >
                     {selectedNotice.linkText || 'Click here for further information'}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 )}
 
-                <p className="text-[11px] text-slate-500 font-mono border-t border-slate-800/80 pt-4 w-full">
+                <p className="w-full border-t border-[#e3eaf1] pt-4 text-xs text-[#69788d]">
                   Posted: {new Date(selectedNotice.startDate).toLocaleDateString()}
                 </p>
               </div>

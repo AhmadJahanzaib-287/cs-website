@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock3,
+  Mail,
+  MapPin,
+  Navigation,
+  Phone,
+  Send,
+  Loader2,
+} from 'lucide-react';
 import API from '../api/axios';
 
-// TODO: replace this sample contact info with the real department details later —
-// just edit the values below, nothing else needs to change.
-const contactInfo = [
-  { icon: Mail, label: 'Email', value: 'cs@uaf.edu.pk' },
-  { icon: Phone, label: 'Phone', value: '+92-300-1234567' },
-  { icon: MapPin, label: 'Address', value: 'University Road, Faisalabad, Pakistan' },
-];
+const directionsUrl = 'https://www.google.com/maps/search/?api=1&query=Department+of+Computer+Science+University+of+Agriculture+Faisalabad';
+const mapEmbedUrl = 'https://maps.google.com/maps?q=Department%20of%20Computer%20Science%2C%20University%20of%20Agriculture%20Faisalabad&t=&z=14&ie=UTF8&iwloc=&output=embed';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -43,174 +49,201 @@ export default function ContactSection() {
   };
 
   return (
-    <section
-      id="contact"
-      className="relative py-16 sm:py-20 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden"
-    >
-      <div className="max-w-5xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-          <motion.span
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-extrabold uppercase tracking-widest"
-          >
-            <Mail className="w-3.5 h-3.5" /> Get In Touch
-          </motion.span>
+    <section id="contact" className="relative overflow-hidden bg-[#f3f7fb] px-4 py-16 text-[#17243b] sm:px-8 sm:py-24">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#0e7490]/40 to-transparent" />
+      <div className="relative mx-auto max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.55 }}
+          className="mb-10 grid gap-5 md:mb-12 md:grid-cols-[1fr_auto] md:items-end"
+        >
+          <div>
+            <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]">
+              <span className="h-px w-7 bg-[#0e7490]" /> Department of Computer Science
+            </p>
+            <h2 className="max-w-2xl text-3xl font-extrabold leading-tight text-[#17243b] sm:text-5xl">
+              Let&apos;s start a conversation.
+            </h2>
+          </div>
+          <p className="max-w-md text-sm leading-6 text-[#58677d] md:pb-1 md:text-base">
+            Questions about our programs, admissions, or the department? Send a note and our team will be glad to help.
+          </p>
+        </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-black text-white tracking-tight"
-          >
-            Contact Us
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-400 text-sm sm:text-base leading-relaxed"
-          >
-            Have a question about admissions, programs, or anything else? Send us a message
-            and the department will get back to you.
-          </motion.p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* LEFT: Contact Info */}
+        <div className="grid items-start gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:gap-12">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -16 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 space-y-4"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.55 }}
+            className="space-y-7"
           >
-            {contactInfo.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl shadow-lg"
-                >
-                  <div className="p-2.5 rounded-xl bg-blue-950 border border-blue-800/60 text-blue-400 shrink-0">
-                    <Icon className="w-4 h-4" />
-                  </div>
+            <div className="divide-y divide-[#dce5ef] border-y border-[#dce5ef]">
+              <a href="mailto:cs@uaf.edu.pk" className="group flex items-start gap-4 py-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
+                  <Mail className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-bold uppercase text-[#69788d]">Email the department</span>
+                  <span className="mt-1 block break-all text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">cs@uaf.edu.pk</span>
+                </span>
+                <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-[#8290a3] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0e7490]" />
+              </a>
+
+              <a href="tel:+92419200161" className="group flex items-start gap-4 py-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
+                  <Phone className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-xs font-bold uppercase text-[#69788d]">Call the department</span>
+                  <span className="mt-1 block text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">+92 41 9200161</span>
+                  <span className="mt-0.5 block text-xs text-[#69788d]">Extensions 5052, 5040</span>
+                </span>
+                <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-[#8290a3] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0e7490]" />
+              </a>
+
+              <div className="flex items-start gap-4 py-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
+                  <Clock3 className="h-4 w-4" />
+                </span>
+                <span>
+                  <span className="block text-xs font-bold uppercase text-[#69788d]">Office hours</span>
+                  <span className="mt-1 block text-sm font-semibold text-[#17243b]">Monday to Friday</span>
+                  <span className="mt-0.5 block text-xs text-[#69788d]">8:00 AM to 4:00 PM</span>
+                </span>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-[#dce5ef] bg-white shadow-sm">
+              <div className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <MapPin className="h-4 w-4 shrink-0 text-[#0e7490]" />
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {item.label}
-                    </p>
-                    <p className="text-sm font-semibold text-slate-200 truncate">{item.value}</p>
+                    <p className="text-sm font-bold text-[#17243b]">Find us on campus</p>
+                    <p className="truncate text-xs text-[#69788d]">University of Agriculture, Faisalabad</p>
                   </div>
                 </div>
-              );
-            })}
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-[#1e3a8a] hover:text-[#0e7490]"
+                >
+                  <Navigation className="h-3.5 w-3.5" /> Directions
+                </a>
+              </div>
+              <iframe
+                title="Map to the Department of Computer Science, University of Agriculture Faisalabad"
+                src={mapEmbedUrl}
+                className="h-56 w-full border-0 sm:h-64"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            </div>
           </motion.div>
 
-          {/* RIGHT: Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 16 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-7 bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-2xl relative overflow-hidden"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.55, delay: 0.08 }}
+            className="relative rounded-xl border border-[#e0e7ef] bg-white p-5 shadow-[0_18px_55px_-35px_rgba(23,36,59,0.35)] sm:p-8"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" />
+            <div className="mb-7 border-b border-[#e7edf3] pb-5">
+              <p className="text-xs font-bold uppercase text-[#0e7490]">Send a message</p>
+              <h3 className="mt-1.5 text-xl font-bold text-[#17243b]">How can we help?</h3>
+              <p className="mt-1 text-sm text-[#69788d]">Fields marked with * are required.</p>
+            </div>
 
             {status === 'success' ? (
-              <div className="flex flex-col items-center text-center py-10">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-7 h-7" />
+              <div className="flex min-h-64 flex-col items-center justify-center py-10 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#e6f5f2] text-[#0e7490]">
+                  <CheckCircle2 className="h-7 w-7" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-1">Message Sent</h3>
-                <p className="text-sm text-slate-400 mb-6">
-                  Thanks for reaching out — we'll get back to you soon.
+                <h3 className="mb-1 text-lg font-bold text-[#17243b]">Message sent</h3>
+                <p className="mb-6 max-w-xs text-sm leading-6 text-[#69788d]">
+                  Thank you for contacting the department. We&apos;ll get back to you soon.
                 </p>
                 <button
+                  type="button"
                   onClick={() => setStatus('idle')}
-                  className="px-6 py-2.5 rounded-xl border border-slate-800 text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800/60 transition cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-md bg-[#1e3a8a] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#172e6e]"
                 >
-                  Send Another Message
+                  <Mail className="h-4 w-4" /> Send another message
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
-                      Name *
-                    </label>
+                    <label htmlFor="contact-name" className="mb-2 block text-xs font-bold text-[#34435a]">Name *</label>
                     <input
+                      id="contact-name"
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       placeholder="Your full name"
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-sm text-slate-200 placeholder-slate-600 outline-none focus:border-cyan-500/50 transition"
+                      autoComplete="name"
+                      required
+                      className="w-full rounded-md border border-[#ced8e4] bg-white px-3.5 py-3 text-sm text-[#17243b] placeholder-[#91a0b3] outline-none transition focus:border-[#0e7490] focus:ring-2 focus:ring-[#0e7490]/15"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
-                      Email *
-                    </label>
+                    <label htmlFor="contact-email" className="mb-2 block text-xs font-bold text-[#34435a]">Email *</label>
                     <input
+                      id="contact-email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-sm text-slate-200 placeholder-slate-600 outline-none focus:border-cyan-500/50 transition"
+                      autoComplete="email"
+                      required
+                      className="w-full rounded-md border border-[#ced8e4] bg-white px-3.5 py-3 text-sm text-[#17243b] placeholder-[#91a0b3] outline-none transition focus:border-[#0e7490] focus:ring-2 focus:ring-[#0e7490]/15"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
-                    Subject (optional)
-                  </label>
+                  <label htmlFor="contact-subject" className="mb-2 block text-xs font-bold text-[#34435a]">Subject</label>
                   <input
+                    id="contact-subject"
                     type="text"
                     value={formData.subject}
                     onChange={(e) => handleChange('subject', e.target.value)}
-                    placeholder="What's this about?"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-sm text-slate-200 placeholder-slate-600 outline-none focus:border-cyan-500/50 transition"
+                    placeholder="What is your message about?"
+                    className="w-full rounded-md border border-[#ced8e4] bg-white px-3.5 py-3 text-sm text-[#17243b] placeholder-[#91a0b3] outline-none transition focus:border-[#0e7490] focus:ring-2 focus:ring-[#0e7490]/15"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2.5">
-                    Message *
-                  </label>
+                  <label htmlFor="contact-message" className="mb-2 block text-xs font-bold text-[#34435a]">Message *</label>
                   <textarea
-                    rows={4}
+                    id="contact-message"
+                    rows={5}
                     value={formData.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder="Write your message here..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-sm text-slate-200 placeholder-slate-600 outline-none focus:border-cyan-500/50 transition resize-none"
+                    required
+                    className="w-full resize-y rounded-md border border-[#ced8e4] bg-white px-3.5 py-3 text-sm text-[#17243b] placeholder-[#91a0b3] outline-none transition focus:border-[#0e7490] focus:ring-2 focus:ring-[#0e7490]/15"
                   />
                 </div>
 
                 {error && (
-                  <p className="flex items-center gap-2 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    {error}
+                  <p role="alert" className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3.5 py-3 text-sm font-medium text-red-700">
+                    <AlertCircle className="h-4 w-4 shrink-0" /> {error}
                   </p>
                 )}
 
                 <button
                   type="submit"
                   disabled={status === 'sending'}
-                  className="flex items-center justify-center gap-2 w-full sm:w-auto px-7 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-sm font-bold text-white shadow-xl shadow-cyan-500/25 hover:scale-[1.02] active:scale-95 transition cursor-pointer disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#1e3a8a] px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 >
-                  {status === 'sending' ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" /> Send Message
-                    </>
-                  )}
+                  {status === 'sending' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {status === 'sending' ? 'Sending message...' : 'Send message'}
                 </button>
               </form>
             )}

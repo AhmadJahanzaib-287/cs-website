@@ -41,13 +41,15 @@ export default function ScrollToTopButton() {
       {visible && (
         <motion.button
           onClick={scrollToTop}
+          aria-label="Scroll to top"
+          title="Scroll to top"
           // Starts fully off-screen to the left, slides RIGHT into its resting spot.
           initial={{ x: -1200, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -1200, opacity: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
           // Fixed to the viewport, sits near the bottom-RIGHT corner, above other content.
-          className="fixed bottom-16 right-10 lg:right-16 z-[999] w-14 h-14 rounded-full bg-slate-900/95 border-2 border-cyan-500/50 backdrop-blur-md shadow-xl shadow-cyan-500/30 flex items-center justify-center text-cyan-400 cursor-pointer hover:bg-slate-800 hover:border-cyan-400 transition-colors"
+          className="fixed bottom-16 right-10 lg:right-16 z-[999] flex h-14 w-14 items-center justify-center rounded-full border border-[#cbd8e6] bg-white/95 text-[#1e3a8a] shadow-lg shadow-[#1e3a8a]/15 backdrop-blur-md transition-colors hover:border-[#0e7490] hover:bg-[#1e3a8a] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
         >
           <ArrowUp className="w-6 h-6" />
         </motion.button>

@@ -61,39 +61,39 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
   const currentTemplate = appTemplates.templates.find(t => t.id === selectedType);
 
   return (
-    <div className="bg-slate-950/60 border border-slate-800/80 backdrop-blur-xl p-6 rounded-2xl shadow-2xl flex flex-col gap-6 text-slate-200">
+    <div className="flex flex-col gap-6 rounded-xl border border-[#dce5ef] bg-white p-5 text-[#40516a] shadow-[0_18px_50px_-38px_rgba(23,36,59,0.45)] sm:p-6">
       
-      <div className="border-b border-slate-800 pb-4">
-        <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
-          <FileText className="w-5 h-5 text-cyan-400" /> Application Details Form
+      <div className="border-b border-[#e3eaf1] pb-4">
+        <h2 className="flex items-center gap-2 text-lg font-extrabold text-[#17243b]">
+          <FileText className="h-5 w-5 text-[#0e7490]" /> Application Details
         </h2>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="mt-1 text-xs text-[#69788d]">
           Fill out student details to generate instant official application.
         </p>
       </div>
 
       {/* RECIPIENT SEARCHABLE COMBOBOX */}
       <div className="relative">
-        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+        <label className="mb-2 block text-xs font-bold uppercase text-[#52647b]">
           Select Recipient
         </label>
         <button
           type="button"
           onClick={() => setIsRecipientOpen(!isRecipientOpen)}
-          className="w-full text-left bg-slate-900/90 border border-slate-800 focus:border-cyan-500 rounded-xl p-3 text-xs text-white flex justify-between items-center"
+          className="flex w-full items-center justify-between rounded-md border border-[#ced8e4] bg-white p-3 text-left text-xs text-[#25354d] transition focus:border-[#0e7490] focus:outline-none focus:ring-2 focus:ring-[#0e7490]/15"
         >
-          <span>{activeRecipient.title} — <span className="text-slate-400">{activeRecipient.dept}</span></span>
-          <span className="text-xs text-cyan-400 font-bold">Change ▾</span>
+          <span>{activeRecipient.title} — <span className="text-[#69788d]">{activeRecipient.dept}</span></span>
+          <span className="text-xs font-bold text-[#1e3a8a]">Change ▾</span>
         </button>
 
         {isRecipientOpen && (
-          <div className="absolute z-30 w-full mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-2 max-h-52 overflow-y-auto">
+          <div className="absolute z-30 mt-2 max-h-52 w-full overflow-y-auto rounded-md border border-[#d5e1ec] bg-white p-2 shadow-xl">
             <input
               type="text"
               placeholder="Search recipient..."
               value={searchRecipient}
               onChange={(e) => setSearchRecipient(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white mb-2 focus:outline-none focus:border-cyan-500"
+              className="mb-2 w-full rounded-md border border-[#ced8e4] bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none"
             />
             {appTemplates.recipients
               .filter(r => r.title.toLowerCase().includes(searchRecipient.toLowerCase()))
@@ -104,10 +104,10 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
                     setFormData(prev => ({ ...prev, recipientId: r.id }));
                     setIsRecipientOpen(false);
                   }}
-                  className="p-2 text-xs hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                  className="cursor-pointer rounded-md p-2 text-xs transition-colors hover:bg-[#f3f7fb]"
                 >
-                  <p className="font-bold text-white">{r.title}</p>
-                  <p className="text-[10px] text-slate-400">{r.dept}</p>
+                  <p className="font-bold text-[#25354d]">{r.title}</p>
+                  <p className="text-[10px] text-[#69788d]">{r.dept}</p>
                 </div>
               ))}
           </div>
@@ -116,16 +116,16 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
 
       {/* APPLICATION TYPE SELECTION */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+        <label className="mb-2 block text-xs font-bold uppercase text-[#52647b]">
           Application Type
         </label>
         <select
           value={selectedType}
           onChange={(e) => handleTypeChange(e.target.value)}
-          className="w-full bg-slate-900/90 border border-slate-800 focus:border-cyan-500 rounded-xl p-3 text-xs text-white focus:outline-none"
+          className="w-full rounded-md border border-[#ced8e4] bg-white p-3 text-xs text-[#25354d] focus:border-[#0e7490] focus:outline-none focus:ring-2 focus:ring-[#0e7490]/15"
         >
           {appTemplates.templates.map(t => (
-            <option key={t.id} value={t.id} className="bg-slate-900 text-white">
+            <option key={t.id} value={t.id} className="bg-white text-[#25354d]">
               {t.name}
             </option>
           ))}
@@ -134,13 +134,13 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
 
       {/* DYNAMIC FIELDS FOR SELECTED TYPE */}
       {currentTemplate?.dynamicFields?.length > 0 && (
-        <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 space-y-3">
-          <p className="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+        <div className="space-y-3 rounded-md border border-[#dce5ef] bg-[#f7fafc] p-4">
+          <p className="flex items-center gap-1.5 text-xs font-bold text-[#0e7490]">
             <Sparkles className="w-3.5 h-3.5" /> Specific Details Needed:
           </p>
           {currentTemplate.dynamicFields.map(field => (
             <div key={field.name}>
-              <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+              <label className="mb-1 block text-[11px] font-semibold text-[#52647b]">
                 {field.label}
               </label>
               <input
@@ -157,7 +157,7 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
                     }));
                   }
                 }}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                className="w-full rounded-md border border-[#ced8e4] bg-white p-2.5 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none focus:ring-2 focus:ring-[#0e7490]/15"
               />
             </div>
           ))}
@@ -166,7 +166,7 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
 
       {/* EDITABLE SUBJECT */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+        <label className="mb-2 block text-xs font-bold uppercase text-[#52647b]">
           Subject (Editable)
         </label>
         <input
@@ -176,14 +176,14 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
             setFormData(prev => ({ ...prev, subject: e.target.value }));
             if (errors.subject) setErrors(prev => ({ ...prev, subject: null }));
           }}
-          className={`w-full bg-slate-900/90 border ${errors.subject ? 'border-rose-500' : 'border-slate-800'} focus:border-cyan-500 rounded-xl p-3 text-xs text-white focus:outline-none`}
+          className={`w-full rounded-md border bg-white p-3 text-xs text-[#17243b] focus:outline-none focus:ring-2 focus:ring-[#0e7490]/15 ${errors.subject ? 'border-rose-500' : 'border-[#ced8e4] focus:border-[#0e7490]'}`}
         />
-        {errors.subject && <p className="text-[10px] text-rose-400 mt-1">{errors.subject}</p>}
+        {errors.subject && <p className="mt-1 text-[10px] text-rose-700">{errors.subject}</p>}
       </div>
 
       {/* EDITABLE BODY */}
       <div>
-        <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+        <label className="mb-2 block text-xs font-bold uppercase text-[#52647b]">
           Application Body (Editable)
         </label>
         <textarea
@@ -193,15 +193,15 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
             setFormData(prev => ({ ...prev, body: e.target.value }));
             if (errors.body) setErrors(prev => ({ ...prev, body: null }));
           }}
-          className={`w-full bg-slate-900/90 border ${errors.body ? 'border-rose-500' : 'border-slate-800'} focus:border-cyan-500 rounded-xl p-3 text-xs text-white leading-relaxed focus:outline-none`}
+          className={`w-full rounded-md border bg-white p-3 text-xs leading-relaxed text-[#17243b] focus:outline-none focus:ring-2 focus:ring-[#0e7490]/15 ${errors.body ? 'border-rose-500' : 'border-[#ced8e4] focus:border-[#0e7490]'}`}
         />
-        {errors.body && <p className="text-[10px] text-rose-400 mt-1">{errors.body}</p>}
+        {errors.body && <p className="mt-1 text-[10px] text-rose-700">{errors.body}</p>}
       </div>
 
       {/* STUDENT PERSONAL DATA FIELDS */}
-      <div className="border-t border-slate-800 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 border-t border-[#e3eaf1] pt-4 sm:grid-cols-2">
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Student Name</label>
+          <label className="mb-1 block text-[11px] font-semibold text-[#52647b]">Student Name</label>
           <input
             type="text"
             placeholder="e.g. Ahmad Jahanzaib"
@@ -210,13 +210,13 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
               setFormData(prev => ({ ...prev, studentName: e.target.value }));
               if (errors.studentName) setErrors(prev => ({ ...prev, studentName: null }));
             }}
-            className={`w-full bg-slate-900 border ${errors.studentName ? 'border-rose-500' : 'border-slate-800'} rounded-lg p-2 text-xs text-white focus:border-cyan-500 focus:outline-none`}
+            className={`w-full rounded-md border bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none ${errors.studentName ? 'border-rose-500' : 'border-[#ced8e4]'}`}
           />
-          {errors.studentName && <p className="text-[10px] text-rose-400 mt-1">{errors.studentName}</p>}
+          {errors.studentName && <p className="mt-1 text-[10px] text-rose-700">{errors.studentName}</p>}
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Registration No</label>
+          <label className="mb-1 block text-[11px] font-semibold text-[#52647b]">Registration No</label>
           <input
             type="text"
             placeholder="e.g. 2022-ag-1234"
@@ -225,13 +225,13 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
               setFormData(prev => ({ ...prev, studentRegNo: e.target.value }));
               if (errors.studentRegNo) setErrors(prev => ({ ...prev, studentRegNo: null }));
             }}
-            className={`w-full bg-slate-900 border ${errors.studentRegNo ? 'border-rose-500' : 'border-slate-800'} rounded-lg p-2 text-xs text-white focus:border-cyan-500 focus:outline-none`}
+            className={`w-full rounded-md border bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none ${errors.studentRegNo ? 'border-rose-500' : 'border-[#ced8e4]'}`}
           />
-          {errors.studentRegNo && <p className="text-[10px] text-rose-400 mt-1">{errors.studentRegNo}</p>}
+          {errors.studentRegNo && <p className="mt-1 text-[10px] text-rose-700">{errors.studentRegNo}</p>}
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Semester & Section</label>
+          <label className="mb-1 block text-[11px] font-semibold text-[#52647b]">Semester & Section</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -241,21 +241,21 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
                 setFormData(prev => ({ ...prev, semester: e.target.value }));
                 if (errors.semester) setErrors(prev => ({ ...prev, semester: null }));
               }}
-              className={`w-1/2 bg-slate-900 border ${errors.semester ? 'border-rose-500' : 'border-slate-800'} rounded-lg p-2 text-xs text-white focus:border-cyan-500 focus:outline-none`}
+              className={`w-1/2 rounded-md border bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none ${errors.semester ? 'border-rose-500' : 'border-[#ced8e4]'}`}
             />
             <input
               type="text"
               placeholder="Sec (e.g. Morning A)"
               value={formData.section}
               onChange={(e) => setFormData(prev => ({ ...prev, section: e.target.value }))}
-              className="w-1/2 bg-slate-900 border border-slate-800 rounded-lg p-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+              className="w-1/2 rounded-md border border-[#ced8e4] bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none"
             />
           </div>
-          {errors.semester && <p className="text-[10px] text-rose-400 mt-1">{errors.semester}</p>}
+          {errors.semester && <p className="mt-1 text-[10px] text-rose-700">{errors.semester}</p>}
         </div>
 
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 mb-1">Contact No</label>
+          <label className="mb-1 block text-[11px] font-semibold text-[#52647b]">Contact No</label>
           <input
             type="text"
             placeholder="0300-1234567"
@@ -264,14 +264,14 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
               setFormData(prev => ({ ...prev, contactNo: e.target.value }));
               if (errors.contactNo) setErrors(prev => ({ ...prev, contactNo: null }));
             }}
-            className={`w-full bg-slate-900 border ${errors.contactNo ? 'border-rose-500' : 'border-slate-800'} rounded-lg p-2 text-xs text-white focus:border-cyan-500 focus:outline-none`}
+            className={`w-full rounded-md border bg-white p-2 text-xs text-[#17243b] placeholder-[#91a0b3] focus:border-[#0e7490] focus:outline-none ${errors.contactNo ? 'border-rose-500' : 'border-[#ced8e4]'}`}
           />
-          {errors.contactNo && <p className="text-[10px] text-rose-400 mt-1">{errors.contactNo}</p>}
+          {errors.contactNo && <p className="mt-1 text-[10px] text-rose-700">{errors.contactNo}</p>}
         </div>
       </div>
 
       {statusMessage && (
-        <div className={`p-3 rounded-xl text-xs font-medium border ${statusMessage.type === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'}`}>
+        <div role="status" className={`rounded-md border p-3 text-xs font-medium ${statusMessage.type === 'error' ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-emerald-200 bg-emerald-50 text-emerald-800'}`}>
           {statusMessage.text}
         </div>
       )}
@@ -280,7 +280,7 @@ export default function ApplicationForm({ formData, setFormData, onGenerate }) {
       <button
         type="button"
         onClick={handleValidateAndGenerate}
-        className="mt-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-cyan-500/20 transition-all cursor-pointer"
+        className="mt-2 flex w-full items-center justify-center gap-2 rounded-md bg-[#1e3a8a] py-3.5 text-xs font-bold uppercase text-white shadow-md shadow-[#1e3a8a]/15 transition-colors hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
       >
         <CheckCircle2 className="w-4 h-4" /> Format & Validate Application
       </button>

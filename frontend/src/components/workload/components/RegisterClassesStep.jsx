@@ -21,7 +21,7 @@ const ordinal = (n) => {
 const getClassLabel = (c) =>
   `${ordinal(c.semesterNumber)} Sem ${c.degree}${c.section ? ` Sec ${c.section}` : ''} (${c.session})`;
 
-export default function RegisterClassesStep({ workload, onNext, onBack }) {
+export default function RegisterClassesStep({ workload, onNext, onBack, onClose }) {
   const [degree, setDegree] = useState('BSCS');
   const [semesterNumber, setSemesterNumber] = useState('1');
   const [session, setSession] = useState('Morning');
@@ -195,18 +195,18 @@ export default function RegisterClassesStep({ workload, onNext, onBack }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/50 p-3 backdrop-blur-sm sm:p-5">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 10 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-5xl bg-white border border-gray-100 rounded-3xl shadow-2xl overflow-hidden text-gray-800 flex flex-col"
+        className="min-h-[460px] max-h-[calc(100dvh-1.5rem)] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#dce5ef] bg-white text-[#25354d] shadow-2xl sm:max-h-[calc(100dvh-2.5rem)]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+        <div className="flex items-center justify-between border-b border-[#e3eaf1] bg-[#f7fafc] px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3.5">
-            <div className="p-2.5 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a]">
+            <div className="rounded-lg border border-[#dce5ef] bg-white p-2.5 text-[#1e3a8a]">
               <School className="w-6 h-6" />
             </div>
             <div>
@@ -218,11 +218,8 @@ export default function RegisterClassesStep({ workload, onNext, onBack }) {
               </p>
             </div>
           </div>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
-            >
+          {onClose && (
+            <button type="button" onClick={onClose} aria-label="Close workload setup" title="Close workload setup" className="rounded-md p-2 text-[#69788d] transition hover:bg-white hover:text-[#17243b]">
               <X className="w-5 h-5" />
             </button>
           )}
@@ -295,7 +292,7 @@ export default function RegisterClassesStep({ workload, onNext, onBack }) {
           </div>
 
           {/* Right Selected Classes Grid */}
-          <div className="lg:col-span-5 bg-gray-50 border border-gray-200/70 rounded-2xl p-4">
+          <div className="lg:col-span-5 rounded-lg border border-[#dce5ef] bg-[#f7fafc] p-4">
             <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200/60">
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                 Registered Classes
@@ -341,19 +338,19 @@ export default function RegisterClassesStep({ workload, onNext, onBack }) {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gray-50/50 border-t border-gray-100">
+        <div className="flex items-center justify-between border-t border-[#e3eaf1] bg-[#f7fafc] px-4 py-3 sm:px-6">
           <button
             type="button"
-            onClick={onBack}
-            className="px-5 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+            onClick={onBack || onClose}
+            className="rounded-md border border-[#dce5ef] bg-white px-4 py-2 text-xs font-bold text-[#52647b] transition hover:bg-[#f3f7fb]"
           >
-            ← Previous
+            {onBack ? 'Previous' : 'Cancel'}
           </button>
           <button
             type="button"
             onClick={handleSaveAndNext}
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-[#1b337a] text-xs font-bold text-white shadow-lg shadow-blue-900/10 transition cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
+            className="flex items-center gap-2 rounded-md bg-[#1e3a8a] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#172e6e] disabled:pointer-events-none disabled:opacity-60"
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

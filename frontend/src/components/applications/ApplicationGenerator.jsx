@@ -38,20 +38,20 @@ export default function ApplicationGenerator() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="relative py-28 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden min-h-screen flex flex-col items-center"
+      className="relative min-h-screen overflow-hidden bg-[#f3f7fb] px-4 py-28 text-[#17243b] sm:px-8"
     >
 
     
       
       {/* Page Title */}
       <div className="text-center max-w-3xl mx-auto mb-12 relative z-10">
-        <span className="text-xs font-extrabold tracking-widest text-cyan-400 uppercase bg-cyan-500/10 px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md inline-block mb-3">
+        <span className="mb-3 inline-block rounded-full border border-[#b9dce2] bg-white/75 px-4 py-1.5 text-xs font-extrabold uppercase text-[#0e7490]">
           University Official Portal
         </span>
-        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+        <h1 className="text-3xl font-extrabold tracking-tight text-[#17243b] sm:text-5xl">
           Application Generator
         </h1>
-        <p className="text-slate-400 text-xs sm:text-sm mt-2">
+        <p className="mt-2 text-xs text-[#69788d] sm:text-sm">
           Generate, preview, and print official Department of Computer Science applications formatted to DCS standards.
         </p>
       </div>

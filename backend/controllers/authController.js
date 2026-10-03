@@ -87,3 +87,131 @@ export const getMe = async (req, res) => {
     });
   }
 };
+
+/**
+ * @desc    Change the current admin password
+ * @route   PUT /api/v1/auth/password
+ * @access  Private
+ */
+export const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword || newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Enter your current password and a new password of at least 8 characters.',
+      });
+    }
+
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect.',
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password updated successfully.',
+    });
+  } catch (error) {
+    console.error(`[Password Update Error]: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to update password right now.',
+    });
+  }
+};
+
+/**
+ * @desc    Update the current admin profile image
+ * @route   PUT /api/v1/auth/avatar
+ * @access  Private
+ */
+export const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const validImageData = /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+    if (typeof avatar !== 'string' || avatar.length > 1_400_000 || !validImageData.test(avatar)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Choose a PNG, JPG, or WebP image under 1 MB.',
+      });
+    }
+
+    const imageBytes = Buffer.from(avatar.split(',')[1], 'base64');
+    if (imageBytes.length > 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: 'Profile image must be under 1 MB.',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Admin profile not found.' });
+    }
+
+    user.avatar = avatar;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error(`[Avatar Update Error]: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to update profile picture right now.',
+    });
+  }
+};
+
+/**
+ * @desc    Remove the current admin profile image
+ * @route   DELETE /api/v1/auth/avatar
+ * @access  Private
+ */
+export const removeAvatar = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Admin profile not found.' });
+    }
+
+    user.avatar = '';
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture removed successfully.',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error(`[Avatar Removal Error]: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to remove profile picture right now.',
+    });
+  }
+};

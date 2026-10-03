@@ -49,42 +49,44 @@ export default function CreateWorkloadCard({ onClose, onCreated }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/50 backdrop-blur-sm px-4"
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#10203d]/50 p-3 backdrop-blur-sm sm:p-5"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 15 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md mx-auto bg-white border border-gray-100 rounded-3xl p-6 shadow-2xl relative text-gray-800"
+        className="relative max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-xl border border-[#dce5ef] bg-white p-5 text-[#25354d] shadow-2xl sm:max-h-[calc(100dvh-2.5rem)] sm:p-6"
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+          aria-label="Close workload creation"
+          className="absolute right-4 top-4 rounded-md p-2 text-[#69788d] transition hover:bg-[#f3f7fb] hover:text-[#17243b] sm:right-5 sm:top-5"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3.5 mb-6">
-          <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a] shrink-0">
+        <div className="mb-6 flex items-center gap-3.5 border-b border-[#e3eaf1] pb-4">
+          <div className="shrink-0 rounded-lg border border-[#dce5ef] bg-[#f7fafc] p-2.5 text-[#1e3a8a]">
             <CalendarRange className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight">
+            <h3 className="text-lg font-bold tracking-tight text-[#17243b]">
               Create New Workload
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="mt-0.5 text-xs text-[#69788d]">
               Start a new semester workload session.
             </p>
           </div>
         </div>
 
         {/* Form Inputs with Strict Light/White Theme Dropdown Override */}
-        <div className="grid grid-cols-2 gap-4 mb-6 [&_ul]:!bg-white [&_ul]:!border-gray-200 [&_ul]:!shadow-xl [&_li]:!text-gray-800 [&_li:hover]:!bg-blue-50 [&_li:hover]:!text-[#1e3a8a] [&_div[role='listbox']]:!bg-white [&_div[role='listbox']]:!border-gray-200">
+        <div className="mb-6 grid grid-cols-2 gap-4 [&_ul]:!bg-white [&_ul]:!border-gray-200 [&_ul]:!shadow-xl [&_li]:!text-gray-800 [&_li:hover]:!bg-blue-50 [&_li:hover]:!text-[#1e3a8a] [&_div[role='listbox']]:!bg-white [&_div[role='listbox']]:!border-gray-200">
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-2">
               Year
@@ -121,7 +123,7 @@ export default function CreateWorkloadCard({ onClose, onCreated }) {
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-end gap-3 border-t border-[#e3eaf1] pt-4">
           <button
             type="button"
             onClick={onClose}

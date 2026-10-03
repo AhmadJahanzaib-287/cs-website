@@ -49,7 +49,7 @@ export default function AcademicPrograms() {
   };
 
   return (
-    <section id="programs" className="relative py-24 px-4 sm:px-8 bg-[#0b0f19] text-slate-100 overflow-hidden min-h-[90vh] flex flex-col items-center justify-center select-none">
+    <section id="programs" className="relative py-24 px-4 sm:px-8 bg-[#f3f7fb] text-slate-100 overflow-hidden min-h-[90vh] flex flex-col items-center justify-center select-none">
       
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-8 relative z-20">

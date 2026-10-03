@@ -82,10 +82,10 @@ export default function HeroSection({ isLoading, contentReady }) {
       initial="hidden"
       animate={isLoading ? "hidden" : "visible"}
       variants={containerVariants}
-      className="relative min-h-0 h-auto lg:min-h-screen lg:h-screen bg-[#0b0f19] text-slate-100 overflow-hidden flex flex-col justify-between select-none pb-8 lg:pb-0"
+      className="relative min-h-0 h-auto lg:min-h-screen lg:h-screen bg-[#f3f7fb] text-slate-100 overflow-hidden flex flex-col justify-between select-none pb-8 lg:pb-0"
     >
       {/* 1. Background Layers (Consistent with Academic Programs styling) */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-[#0b0f19]">
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden bg-[#f3f7fb]">
         
        <div 
           className="absolute top-0 right-0 w-full md:w-[70%] h-full opacity-100"
@@ -102,7 +102,7 @@ export default function HeroSection({ isLoading, contentReady }) {
   decoding="async"
   className="w-full h-full object-cover object-bottom saturate-110"
 />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-100 via-gray-100/10 to-gray-100/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#f3f7fb] via-[#f3f7fb]/10 to-[#f3f7fb]/40" />
         </div>
 
         <div className="absolute left-6 top-8 opacity-[0.16] font-mono text-[11px] text-cyan-400 hidden md:block leading-relaxed select-none pointer-events-none">
