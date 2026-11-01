@@ -32,49 +32,46 @@ export default function FacultyCard({ member, onViewProfile, onEdit }) {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="bg-slate-900/90 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-2xl shadow-xl hover:border-cyan-500/40 transition-all duration-300 group flex flex-col justify-between relative overflow-hidden h-full text-slate-100"
+      className="group relative flex h-full flex-col justify-between overflow-hidden bg-white p-5 text-[#17243b] transition-colors hover:bg-[#fbfcfd] sm:p-6"
     >
-      {/* Top Accent Line (reveals on hover) */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-[#7c3aed] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-[#0e7490] opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
 
       <div>
         {/* Avatar Image Container */}
-        <div className="relative w-28 h-28 mx-auto mb-5 rounded-2xl overflow-hidden border border-slate-800 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-950">
+        <div className="mb-5 flex items-start gap-4">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-md border border-[#dce5ef] bg-[#f3f7fb] sm:h-24 sm:w-24">
           <img
             src={facultyImageUrl(avatar)}
             alt={name}
-            className="w-full h-full object-cover object-center"
+            className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
-        </div>
-
-        {/* Primary Info */}
-        <div className="text-center space-y-1.5 mb-4">
-          <h3 className="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors line-clamp-1">
+          </div>
+          <div className="min-w-0 pt-1">
+          <p className="mb-1 text-[9px] font-bold uppercase tracking-wide text-[#0e7490]">{member.category || 'Faculty'}</p>
+          <h3 className="line-clamp-2 text-base font-extrabold leading-snug text-[#17243b]">
             {name}
           </h3>
-          <p className="text-xs font-semibold text-cyan-400/90 line-clamp-1">
+          <p className="mt-1 text-xs font-semibold text-[#1e3a8a] line-clamp-2">
             {designation}
           </p>
-          <p className="text-xs text-slate-400 flex items-center justify-center gap-1 line-clamp-1">
-            <GraduationCap className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-            <span>{qualification}</span>
-          </p>
+          </div>
         </div>
+        <p className="flex items-center gap-1.5 text-xs text-[#69788d]"><GraduationCap className="h-3.5 w-3.5 shrink-0 text-[#0e7490]" /><span className="line-clamp-1">{qualification}</span></p>
 
         {/* Specialization Tags */}
         {specializationList.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5 mb-6">
+          <div className="mb-5 mt-4 flex flex-wrap gap-1.5">
             {specializationList.slice(0, 3).map((spec, index) => (
               <span
                 key={index}
-                className="px-2.5 py-1 rounded-xl bg-slate-950/80 border border-slate-800/80 text-[10px] font-medium text-slate-300"
+                className="rounded-sm border border-[#d5e1ec] bg-[#f3f7fb] px-2 py-1 text-[10px] font-semibold text-[#40516a]"
               >
                 {spec}
               </span>
             ))}
             {specializationList.length > 3 && (
-              <span className="px-2 py-1 rounded-xl bg-slate-950/50 border border-slate-800/50 text-[10px] font-medium text-slate-500">
+              <span className="rounded-sm border border-[#dce5ef] bg-white px-2 py-1 text-[10px] font-semibold text-[#69788d]">
                 +{specializationList.length - 3}
               </span>
             )}
@@ -83,17 +80,17 @@ export default function FacultyCard({ member, onViewProfile, onEdit }) {
       </div>
 
       {/* Footer Info & Action */}
-      <div className="pt-4 border-t border-slate-800/80 space-y-3">
-        <div className="space-y-1.5 text-xs text-slate-400">
+      <div className="space-y-3 border-t border-[#e3eaf1] pt-4">
+        <div className="space-y-1.5 text-xs text-[#69788d]">
           {email && (
             <div className="flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+              <Mail className="h-3.5 w-3.5 shrink-0 text-[#0e7490]" />
               <span className="truncate">{email}</span>
             </div>
           )}
           {office && (
             <div className="flex items-center gap-2">
-              <Building className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <Building className="h-3.5 w-3.5 shrink-0 text-[#1e3a8a]" />
               <span className="truncate">{office}</span>
             </div>
           )}
@@ -104,16 +101,16 @@ export default function FacultyCard({ member, onViewProfile, onEdit }) {
           <button
             type="button"
             onClick={() => onViewProfile && onViewProfile(member)}
-            className="flex-1 mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/60 hover:bg-[#7c3aed] text-xs font-semibold text-slate-200 hover:text-white transition-all duration-200 cursor-pointer"
+            className="mt-1 inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-md bg-[#1e3a8a] px-3 text-xs font-bold text-white transition hover:bg-[#172e6e]"
           >
             <span>View Full Profile</span>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="h-4 w-4" />
           </button>
           {onEdit && (
             <button
               type="button"
               onClick={() => onEdit(member)}
-              className="mt-2 p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-300 transition-colors cursor-pointer"
+              className="mt-1 rounded-md border border-[#dce5ef] bg-white p-2 text-[#52647b] transition hover:border-[#b9dce2] hover:bg-[#edf7f8] hover:text-[#0e7490]"
               title="Edit faculty member"
               aria-label={`Edit ${name}`}
             >

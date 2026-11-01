@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, Download, Sparkles, Mail, Phone, Globe, MapPin } from 'lucide-react';
-import html2canvas from 'html2canvas-pro';
-import jsPDF from 'jspdf';
+import { FileCheck2, MapPin } from 'lucide-react';
 
-export default function ApplicationPreview({ formData, recipientObj, printableRef }) {
+export default function ApplicationPreview({ formData, recipientObj, printableRef, serialNumber }) {
   const currentDate = new Date().toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'long',
@@ -25,72 +23,16 @@ export default function ApplicationPreview({ formData, recipientObj, printableRe
     return () => window.removeEventListener("resize", resize);
   }, []);
 
-  // FIXED Export to PDF Logic (Mobile Pixel Squash Fix)
-  // Export to PDF Logic (Guaranteed Mobile Fix via Off-Screen Cloning)
-  const handleDownloadPDF = async () => {
-    const element = printableRef.current;
-    if (!element) return;
-
-    // 1. Off-screen desktop container banayein
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '794px'; // Fixed A4 width
-
-    // 2. Original element ka clone banayein
-    const clone = element.cloneNode(true);
-    
-    // 3. Clone par absolute/desktop scale styles set karein
-    clone.style.transform = 'none';
-    clone.style.width = '794px';
-    clone.style.minWidth = '794px';
-    clone.style.height = '1123px'; // A4 Height in px (297mm)
-    clone.style.boxSizing = 'border-box';
-
-    container.appendChild(clone);
-    document.body.appendChild(container);
-
-    try {
-      // 4. Capture Canvas from cloned Desktop view
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        width: 794,
-        height: 1123
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`${formData.studentRegNo || 'UAF'}_Application.pdf`);
-    } catch (err) {
-      console.error("PDF generation error:", err);
-    } finally {
-      // 5. Cleanup off-screen container
-      document.body.removeChild(container);
-    }
-  };
   return (
     <div className="flex flex-col items-center w-full overflow-x-hidden">
       
       {/* Top Action Controls */}
       <div className="mb-4 flex w-full max-w-[210mm] items-center justify-between rounded-md border border-[#dce5ef] bg-white/90 p-3 shadow-sm">
         <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-          <span className="text-xs font-semibold text-[#52647b]">Live A4 Paper Preview</span>
+          <FileCheck2 className="h-4 w-4 text-[#0e7490]" />
+          <span className="text-xs font-semibold text-[#52647b]">Official A4 preview</span>
         </div>
-        <button
-          onClick={handleDownloadPDF}
-          className="flex items-center gap-2 rounded-md bg-[#1e3a8a] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
-        >
-          <Download className="w-4 h-4" /> Download PDF
-        </button>
+        <span className="text-[10px] font-semibold uppercase text-[#8290a3]">A4 · Portrait</span>
       </div>
 
       {/* ================= A4 DOCUMENT WRAPPER CONTAINER ================= */}
@@ -159,6 +101,7 @@ export default function ApplicationPreview({ formData, recipientObj, printableRe
               {/* DATE */}
               <div className="text-right text-xs font-semibold text-slate-800 mb-6">
                 Date: <span className="underline">{currentDate}</span>
+                <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-slate-600">Application No: <span data-application-serial>{serialNumber || 'Issued after generation'}</span></p>
               </div>
 
               {/* RECIPIENT */}
@@ -226,28 +169,8 @@ export default function ApplicationPreview({ formData, recipientObj, printableRe
               <div className="border-t-2 border-slate-900"></div>
               <div className="border-t border-slate-900 mt-[2px] mb-2"></div>
 
-              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-[9.5px] font-semibold">
-                <span className="flex items-center gap-1">
-                  <Mail className="w-3 h-3" /> example@university.edu
-                </span>
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3 h-3" /> +92-300-1234567
-                </span>
-                <span className="flex items-center gap-1">
-                  <Globe className="w-3 h-3" /> www.example.edu.pk
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full border border-slate-800 flex items-center justify-center text-[7px] font-black leading-none">f</span> facebook.com/example
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full border border-slate-800 flex items-center justify-center text-[7px] font-black leading-none">IG</span> @example
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-full border border-slate-800 flex items-center justify-center text-[7px] font-black leading-none">in</span> example
-                </span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> University Road, Faisalabad, Pakistan
-                </span>
+              <div className="flex items-center justify-center gap-1.5 text-[9.5px] font-semibold">
+                <MapPin className="h-3 w-3" /> Department of Computer Science · UAF, PARS Campus
               </div>
 
               <div className="border-t border-slate-900 mt-2"></div>

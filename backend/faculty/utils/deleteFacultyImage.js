@@ -1,5 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const utilityDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Utility function to safely delete a faculty member's avatar image from the server filesystem.
@@ -13,11 +16,12 @@ export const deleteFacultyImage = async (imagePath) => {
   if (!imagePath || typeof imagePath !== 'string') {
     return true;
   }
+  if (/^https?:\/\//i.test(imagePath)) return true;
 
   try {
-    // Clean leading slashes and normalize file path relative to root directory
-    const sanitizedPath = imagePath.replace(/^[\/\\]+/, '');
-    const absolutePath = path.resolve(process.cwd(), sanitizedPath);
+    const absolutePath = imagePath.startsWith('/uploads/') || imagePath.startsWith('uploads/')
+      ? path.resolve(utilityDirectory, '../storage/facultyImages', path.basename(imagePath))
+      : path.resolve(process.cwd(), imagePath.replace(/^[\/\\]+/, ''));
 
     // Verify file exists on local storage before unlinking
     try {

@@ -7,6 +7,13 @@ import AdminDownloadsPanel from './downloads/AdminDownloadsPanel';
 import WorkloadManagement from './workload/WorkloadManagement';
 import AdminNoticePanel from "./notice/AdminNoticePanel";
 import AdminMessagesPanel from './AdminMessagesPanel';
+import AdminApplicationsPanel from './applications/AdminApplicationsPanel';
+import AdminStudentsPanel from './students/AdminStudentsPanel';
+import AdminSettingsPanel from './settings/AdminSettingsPanel';
+import GlobalSearchDropdown from './admin/GlobalSearchDropdown';
+import StudentDetailsModal from './students/StudentDetailsModal';
+import EditStudentModal from './students/EditStudentModal';
+import NoticeModal from './notice/NoticeModal';
 import FacultyForm from "./faculty/components/FacultyForm";
 import FacultyCard from "./faculty/FacultyCard";
 import FacultyProfile from "./faculty/FacultyProfile";
@@ -43,7 +50,14 @@ const AdminDashboard = () => {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [facultyList, setFacultyList] = useState([]);
+  const [facultySearch, setFacultySearch] = useState('');
+  const [facultyLoading, setFacultyLoading] = useState(false);
+  const [recentApplications, setRecentApplications] = useState([]);
+  const [applicationStats, setApplicationStats] = useState({ total: 0, pending: 0 });
+  const [noticeStats, setNoticeStats] = useState({ active: 0, urgent: 0 });
+  const [studentStats, setStudentStats] = useState({ total: 0, active: 0 });
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [isFacultyFormOpen, setIsFacultyFormOpen] = useState(false);
   const [isFacultyProfileOpen, setIsFacultyProfileOpen] = useState(false);
@@ -60,7 +74,79 @@ const AdminDashboard = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const avatarInputRef = useRef(null);
 
+  // Global search modal targets
+  const [searchViewingStudent, setSearchViewingStudent] = useState(null);
+  const [searchEditingStudent, setSearchEditingStudent] = useState(null);
+  const [searchViewingNotice, setSearchViewingNotice] = useState(null);
+  const [searchEditingNotice, setSearchEditingNotice] = useState(null);
+  const [searchViewingApplication, setSearchViewingApplication] = useState(null);
+  const [isNoticeSaving, setIsNoticeSaving] = useState(false);
+  const [appUpdatingStatus, setAppUpdatingStatus] = useState(false);
+
+  const handleSearchNavigate = (tab, item) => {
+    setActiveTab(tab);
+  };
+
+  const handleSearchViewItem = (item) => {
+    if (item.category === 'students') {
+      setSearchViewingStudent(item.raw);
+    } else if (item.category === 'faculty') {
+      setSelectedFaculty(item.raw);
+      setIsFacultyProfileOpen(true);
+    } else if (item.category === 'notices') {
+      setSearchViewingNotice(item.raw);
+    } else if (item.category === 'applications') {
+      setSearchViewingApplication(item.raw);
+    } else {
+      setActiveTab(item.tab);
+    }
+  };
+
+  const handleSearchEditItem = (item) => {
+    if (item.category === 'students') {
+      setSearchEditingStudent(item.raw);
+    } else if (item.category === 'faculty') {
+      setEditingFaculty(item.raw);
+      setIsFacultyFormOpen(true);
+    } else if (item.category === 'notices') {
+      setSearchEditingNotice(item.raw);
+    } else if (item.category === 'applications') {
+      setSearchViewingApplication(item.raw);
+    } else {
+      setActiveTab(item.tab);
+    }
+  };
+
+  const handleSaveNoticeFromSearch = async (formData) => {
+    if (!searchEditingNotice) return false;
+    setIsNoticeSaving(true);
+    try {
+      await API.put(`/notices/${searchEditingNotice._id}`, formData);
+      setSearchEditingNotice(null);
+      return true;
+    } catch (err) {
+      console.error('Error updating notice from search:', err);
+      return false;
+    } finally {
+      setIsNoticeSaving(false);
+    }
+  };
+
+  const handleUpdateAppStatusFromSearch = async (status) => {
+    if (!searchViewingApplication) return;
+    setAppUpdatingStatus(true);
+    try {
+      await API.patch(`/applications/${searchViewingApplication._id}/status`, { status });
+      setSearchViewingApplication((prev) => (prev ? { ...prev, status } : null));
+    } catch (err) {
+      console.error('Error updating application status:', err);
+    } finally {
+      setAppUpdatingStatus(false);
+    }
+  };
+
   const fetchFacultyData = async () => {
+    setFacultyLoading(true);
     try {
       const response = await API.get('/faculty');
       if (response.data.success) {
@@ -68,6 +154,8 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching faculty records:', error);
+    } finally {
+      setFacultyLoading(false);
     }
   };
 
@@ -75,6 +163,43 @@ const AdminDashboard = () => {
     if (activeTab === 'faculty') {
       fetchFacultyData();
     }
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    if (activeTab !== 'dashboard') return;
+
+    API.get('/applications', { params: { limit: 5 } })
+      .then(({ data }) => {
+        setRecentApplications(data.data);
+        setApplicationStats(data.stats);
+      })
+      .catch((error) => console.error('Error fetching recent applications:', error));
+
+    API.get('/notices')
+      .then(({ data }) => {
+        const now = Date.now();
+        const activeNotices = (data.data || []).filter((notice) => (
+          notice.isActive &&
+          new Date(notice.startDate).getTime() <= now &&
+          new Date(notice.endDate).getTime() >= now
+        ));
+        setNoticeStats({
+          active: activeNotices.length,
+          urgent: activeNotices.filter((notice) => notice.priority === 'Emergency').length,
+        });
+      })
+      .catch((error) => console.error('Error fetching dashboard notices:', error));
+
+    API.get('/students/stats')
+      .then(({ data }) => {
+        if (data.success && data.stats) {
+          setStudentStats({
+            total: data.stats.total || 0,
+            active: data.stats.active || 0,
+          });
+        }
+      })
+      .catch((error) => console.error('Error fetching dashboard student stats:', error));
   }, [activeTab]);
 
   const handleLogout = () => {
@@ -221,6 +346,7 @@ const AdminDashboard = () => {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard',           icon: LayoutDashboard },
     { id: 'notices',   label: 'Notices',             icon: Bell },
+    { id: 'applications', label: 'Applications',     icon: BriefcaseBusiness },
     { id: 'students',  label: 'Students',            icon: GraduationCap },
     { id: 'faculty',   label: 'Faculty',             icon: Users },
     { id: 'programs',  label: 'Programs',            icon: BookOpen },
@@ -231,32 +357,83 @@ const AdminDashboard = () => {
   ];
   const activeNavigationItem = navigationItems.find((item) => item.id === activeTab);
   const dashboardStats = [
-    { label: 'Total Applications', value: '1,284', note: '+12% this month', icon: BriefcaseBusiness, tone: 'text-[#0e7490] bg-[#e8f5f6]' },
+    { label: 'Total Applications', value: applicationStats.total.toLocaleString(), note: `${applicationStats.pending} awaiting review`, icon: BriefcaseBusiness, tone: 'text-[#0e7490] bg-[#e8f5f6]' },
     { label: 'Total Faculty', value: '35+', note: 'PhD scholars', icon: Users, tone: 'text-[#1e3a8a] bg-[#edf2fb]' },
-    { label: 'Active Notices', value: '12', note: '3 urgent', icon: Bell, tone: 'text-amber-700 bg-amber-50' },
-    { label: 'Enrolled Students', value: '850', note: 'CS, SE, AI, IT', icon: GraduationCap, tone: 'text-emerald-700 bg-emerald-50' },
+    { label: 'Active Notices', value: noticeStats.active.toLocaleString(), note: `${noticeStats.urgent} urgent`, icon: Bell, tone: 'text-amber-700 bg-amber-50' },
+    { label: 'Enrolled Students', value: studentStats.total > 0 ? studentStats.total.toLocaleString() : '0', note: studentStats.active > 0 ? `${studentStats.active} Active Enrolled` : 'CS, SE, AI, IT, DS', icon: GraduationCap, tone: 'text-emerald-700 bg-emerald-50' },
   ];
+  const filteredFaculty = facultyList.filter((member) =>
+    [member.name, member.designation, member.qualification, member.email, member.category, ...(member.specializations || [])]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+      .includes(facultySearch.toLowerCase())
+  );
+  const facultyCategories = ['Professors', 'Associate Professors', 'Assistant Professors', 'Lecturers'];
 
   return (
     <div className="flex h-screen select-none flex-col overflow-hidden bg-[#f3f7fb] font-sans text-[#17243b] md:flex-row">
 
       {/* ── Mobile Top Bar ───────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-white/15 bg-[#172e6e] px-4 py-3.5 md:hidden">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label="Open dashboard navigation"
-            className="rounded-md border border-white/20 bg-white/10 p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <span className="text-lg font-bold tracking-tight text-white">
-            DCS <span className="text-cyan-200">Admin</span>
-          </span>
+      <div className="sticky top-0 z-40 border-b border-white/15 bg-[#172e6e] px-4 py-3 md:hidden">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Open dashboard navigation"
+              className="rounded-md border border-white/20 bg-white/10 p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="text-lg font-bold tracking-tight text-white">
+              DCS <span className="text-cyan-200">Admin</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsMobileSearchOpen((prev) => !prev)}
+              aria-label="Toggle mobile search"
+              className="rounded-md border border-white/20 bg-white/10 p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={openProfile}
+              aria-label="Open admin profile"
+              className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/15 text-sm font-bold text-white"
+            >
+              {user.avatar ? (
+                <img src={user.avatar} alt="" className="h-full w-full object-cover" />
+              ) : user.name ? (
+                user.name.charAt(0).toUpperCase()
+              ) : (
+                'A'
+              )}
+            </button>
+          </div>
         </div>
-        <button type="button" onClick={openProfile} aria-label="Open admin profile" className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/15 text-sm font-bold text-white">
-          {user.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : user.name ? user.name.charAt(0).toUpperCase() : 'A'}
-        </button>
+
+        {isMobileSearchOpen && (
+          <div className="mt-3 pt-2 border-t border-white/15">
+            <GlobalSearchDropdown
+              onNavigate={(tab, item) => {
+                setIsMobileSearchOpen(false);
+                handleSearchNavigate(tab, item);
+              }}
+              onViewItem={(item) => {
+                setIsMobileSearchOpen(false);
+                handleSearchViewItem(item);
+              }}
+              onEditItem={(item) => {
+                setIsMobileSearchOpen(false);
+                handleSearchEditItem(item);
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* ── Mobile Overlay ───────────────────────────────────────────── */}
@@ -352,15 +529,13 @@ const AdminDashboard = () => {
               <p className="text-[10px] font-bold uppercase text-[#8290a3]">DCS Admin / Workspace</p>
               <p className="mt-0.5 text-sm font-semibold text-[#25354d]">{activeNavigationItem?.label || 'Dashboard'}</p>
             </div>
-            <div className="ml-3 hidden w-72 items-center gap-2.5 rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 py-2 xl:flex">
-            <Search className="h-4 w-4 shrink-0 text-[#8290a3]" />
-            <input
-              type="text"
-              placeholder="Search applications, students, notices..."
-              aria-label="Search dashboard"
-              className="w-full border-none bg-transparent text-xs text-[#25354d] outline-none placeholder:text-[#91a0b3]"
-            />
-          </div>
+            <div className="ml-3 flex items-center">
+              <GlobalSearchDropdown
+                onNavigate={handleSearchNavigate}
+                onViewItem={handleSearchViewItem}
+                onEditItem={handleSearchEditItem}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -389,25 +564,54 @@ const AdminDashboard = () => {
           {activeTab === 'workload'  && <WorkloadManagement />}
           {activeTab === 'messages'  && <AdminMessagesPanel />}
           {activeTab === 'notices'   && <AdminNoticePanel />}
+          {activeTab === 'applications' && <AdminApplicationsPanel />}
 
           {/* ── Faculty ── */}
           {activeTab === 'faculty' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between gap-4">
+            <div className="mx-auto max-w-7xl space-y-6">
+              <div className="flex flex-col gap-4 border-b border-[#d5e1ec] pb-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-[#17243b]">Faculty Management</h2>
-                  <p className="mt-1 text-xs text-[#69788d]">Manage departmental faculty members and profiles.</p>
+                  <p className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase text-[#0e7490]"><span className="h-px w-7 bg-[#0e7490]" /> People / Department directory</p>
+                  <h2 className="text-2xl font-extrabold text-[#17243b] sm:text-3xl">Faculty directory</h2>
+                  <p className="mt-1.5 text-sm text-[#69788d]">Manage academic profiles, contact details, and research expertise.</p>
                 </div>
                 <button
                   onClick={() => { setEditingFaculty(null); setIsFacultyFormOpen(true); }}
-                  className="px-4 py-2 text-white font-semibold text-xs rounded-lg flex items-center gap-2 transition cursor-pointer bg-[#1e3a8a] hover:bg-[#172e6e]"
+                  className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-md bg-[#1e3a8a] px-4 text-xs font-bold text-white transition hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490] sm:self-auto"
                 >
-                  <Plus className="w-4 h-4" /> Add Faculty
+                  <Plus className="h-4 w-4" /> Add faculty member
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {facultyList.map((member) => (
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+                {facultyCategories.map((category) => {
+                  const count = facultyList.filter((member) => member.category === category).length;
+                  return (
+                    <div key={category} className="border-y border-[#dce5ef] bg-white px-4 py-3.5 first:border-l last:border-r sm:px-5">
+                      <p className="text-xs font-semibold text-[#69788d]">{category}</p>
+                      <p className="mt-2 text-2xl font-extrabold tabular-nums text-[#17243b]">{facultyLoading ? '–' : count}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <section className="border-y border-[#dce5ef] bg-white" aria-label="Faculty directory">
+                <div className="flex flex-col gap-3 border-b border-[#e3eaf1] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#25354d]">Department profiles</h3>
+                    <p className="mt-1 text-xs text-[#8290a3]">{filteredFaculty.length} faculty profiles</p>
+                  </div>
+                  <label className="flex h-10 w-full items-center gap-2 rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 sm:max-w-sm">
+                    <Search className="h-4 w-4 shrink-0 text-[#8290a3]" />
+                    <input value={facultySearch} onChange={(event) => setFacultySearch(event.target.value)} placeholder="Search name, role, expertise" aria-label="Search faculty" className="w-full bg-transparent text-xs text-[#25354d] outline-none placeholder:text-[#91a0b3]" />
+                  </label>
+                </div>
+
+                {facultyLoading && facultyList.length === 0 ? (
+                  <div className="grid min-h-56 place-items-center text-xs font-medium text-[#69788d]"><Loader2 className="mr-2 inline h-4 w-4 animate-spin text-[#0e7490]" />Loading faculty profiles...</div>
+                ) : filteredFaculty.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-px bg-[#e3eaf1] sm:grid-cols-2 xl:grid-cols-3">
+                    {filteredFaculty.map((member) => (
                   <FacultyCard
                     key={member._id || member.id}
                     member={member}
@@ -415,7 +619,15 @@ const AdminDashboard = () => {
                     onEdit={() => { setEditingFaculty(member); setIsFacultyFormOpen(true); }}
                   />
                 ))}
-              </div>
+                  </div>
+                ) : (
+                  <div className="py-16 text-center">
+                    <Users className="mx-auto mb-3 h-8 w-8 text-[#b7c4d2]" />
+                    <p className="text-sm font-bold text-[#40516a]">No faculty profiles found</p>
+                    <p className="mt-1 text-xs text-[#8290a3]">Add a faculty member or change the search term.</p>
+                  </div>
+                )}
+              </section>
 
               {isFacultyFormOpen && (
                 <FacultyForm
@@ -474,43 +686,40 @@ const AdminDashboard = () => {
                   <div className="mb-4 flex items-center justify-between gap-3">
                     <div>
                       <h3 className="text-sm font-bold text-[#25354d]">Recent Student Applications</h3>
-                      <p className="mt-1 text-xs text-[#8290a3]">Latest application activity</p>
+                      <p className="mt-1 text-xs text-[#8290a3]">Newest generated requests and their current status</p>
                     </div>
-                    <button onClick={() => setActiveTab('students')} className="inline-flex items-center gap-1 text-xs font-bold text-[#1e3a8a] transition hover:text-[#0e7490]">
-                      View directory <ArrowUpRight className="h-3.5 w-3.5" />
+                    <button onClick={() => setActiveTab('applications')} className="inline-flex items-center gap-1 text-xs font-bold text-[#1e3a8a] transition hover:text-[#0e7490]">
+                      All applications <ArrowUpRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[480px] text-left text-xs text-[#52647b]">
                       <thead className="border-b border-[#e3eaf1] bg-[#f7fafc] font-semibold text-[#69788d]">
                         <tr>
-                          <th className="p-2.5">Student</th>
-                          <th className="p-2.5">Program</th>
+                          <th className="p-2.5">Serial / Applicant</th>
+                          <th className="p-2.5">Application</th>
+                          <th className="p-2.5">Generated</th>
                           <th className="p-2.5">Status</th>
-                          <th className="p-2.5 text-right">Action</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#edf1f5]">
-                        <tr>
-                          <td className="p-2.5 font-medium text-[#25354d]">Muhammad Ali</td>
-                          <td className="p-2.5">BS CS</td>
-                          <td className="p-2.5">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Approved</span>
-                          </td>
-                          <td className="p-2.5 text-right">
-                            <button className="font-semibold text-[#1e3a8a] transition hover:text-[#0e7490]">View</button>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="p-2.5 font-medium text-[#25354d]">Sara Ahmed</td>
-                          <td className="p-2.5">BS SE</td>
-                          <td className="p-2.5">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
-                          </td>
-                          <td className="p-2.5 text-right">
-                            <button className="font-semibold text-[#1e3a8a] transition hover:text-[#0e7490]">View</button>
-                          </td>
-                        </tr>
+                        {recentApplications.map((application) => (
+                          <tr key={application._id}>
+                            <td className="p-2.5">
+                              <p className="font-mono text-[10px] font-bold text-[#1e3a8a]">{application.serialNumber}</p>
+                              <p className="mt-1 font-semibold text-[#25354d]">{application.studentName}</p>
+                              <p className="mt-0.5 text-[10px] text-[#8290a3]">{application.studentRegNo}</p>
+                            </td>
+                            <td className="p-2.5 capitalize">{application.applicationType.replaceAll('_', ' ')}</td>
+                            <td className="whitespace-nowrap p-2.5 text-[10px]">{new Intl.DateTimeFormat('en-PK', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(application.createdAt))}</td>
+                            <td className="p-2.5">
+                              <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold ${application.status === 'Approved' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : application.status === 'Rejected' ? 'border-rose-200 bg-rose-50 text-rose-700' : application.status === 'Under Review' ? 'border-sky-200 bg-sky-50 text-sky-800' : 'border-amber-200 bg-amber-50 text-amber-700'}`}>{application.status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                        {recentApplications.length === 0 && (
+                          <tr><td colSpan="4" className="p-8 text-center text-xs text-[#8290a3]">No applications have been generated yet.</td></tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -537,21 +746,8 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* ── Applications ── */}
-          {activeTab === 'applications' && (
-            <div className="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-800 mb-2">Student Applications Management</h2>
-              <p className="text-xs text-gray-500">Review, approve, or reject incoming student enrollment forms.</p>
-            </div>
-          )}
-
           {/* ── Students ── */}
-          {activeTab === 'students' && (
-            <div className="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-800 mb-2">Registered Students Directory</h2>
-              <p className="text-xs text-gray-500">Manage enrolled student profiles across CS, SE, AI, and IT departments.</p>
-            </div>
-          )}
+          {activeTab === 'students' && <AdminStudentsPanel />}
 
           {/* ── Programs ── */}
           {activeTab === 'programs' && (
@@ -562,12 +758,7 @@ const AdminDashboard = () => {
           )}
 
           {/* ── Settings ── */}
-          {activeTab === 'settings' && (
-            <div className="p-6 rounded-xl bg-white border border-gray-200 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-800 mb-2">Admin Portal Settings</h2>
-              <p className="text-xs text-gray-500">System configuration, security settings, and access control.</p>
-            </div>
-          )}
+          {activeTab === 'settings' && <AdminSettingsPanel />}
 
         </div>
       </main>
@@ -730,6 +921,227 @@ const AdminDashboard = () => {
               </form>
             </div>
           </section>
+        </div>
+      )}
+      {/* ── Global Search Modals ── */}
+      {searchViewingStudent && (
+        <StudentDetailsModal
+          isOpen={Boolean(searchViewingStudent)}
+          student={searchViewingStudent}
+          onClose={() => setSearchViewingStudent(null)}
+        />
+      )}
+
+      {searchEditingStudent && (
+        <EditStudentModal
+          isOpen={Boolean(searchEditingStudent)}
+          student={searchEditingStudent}
+          onClose={() => setSearchEditingStudent(null)}
+          onSuccess={() => {}}
+        />
+      )}
+
+      {searchEditingNotice && (
+        <NoticeModal
+          isOpen={Boolean(searchEditingNotice)}
+          initialData={searchEditingNotice}
+          onClose={() => setSearchEditingNotice(null)}
+          onSubmit={handleSaveNoticeFromSearch}
+          isSubmitting={isNoticeSaving}
+        />
+      )}
+
+      {searchViewingNotice && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/60 p-4 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSearchViewingNotice(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-lg rounded-xl border border-[#dce5ef] bg-white p-6 shadow-2xl space-y-4"
+          >
+            <div className="flex items-start justify-between border-b border-[#e2e8f0] pb-3">
+              <div>
+                <span
+                  className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
+                    searchViewingNotice.priority === 'Emergency'
+                      ? 'bg-rose-100 text-rose-800'
+                      : searchViewingNotice.priority === 'Important'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  {searchViewingNotice.priority || 'Normal'} Priority
+                </span>
+                <h3 className="mt-1.5 text-base font-bold text-[#17243b]">
+                  {searchViewingNotice.title}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSearchViewingNotice(null)}
+                className="rounded-md p-1.5 text-[#64748b] hover:bg-[#f1f5f9]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#475569] leading-relaxed whitespace-pre-wrap">
+              {searchViewingNotice.description}
+            </p>
+
+            <div className="rounded-lg bg-[#f8fafc] p-3 text-[11px] text-[#64748b] space-y-1 border border-[#e2e8f0]">
+              <p>
+                <strong>Start:</strong> {new Date(searchViewingNotice.startDate).toLocaleString()}
+              </p>
+              <p>
+                <strong>End:</strong> {new Date(searchViewingNotice.endDate).toLocaleString()}
+              </p>
+              {searchViewingNotice.linkUrl && (
+                <p>
+                  <strong>Link:</strong>{' '}
+                  <a
+                    href={searchViewingNotice.linkUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#0e7490] underline"
+                  >
+                    {searchViewingNotice.linkText || searchViewingNotice.linkUrl}
+                  </a>
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between border-t border-[#e2e8f0] pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchViewingNotice(null);
+                  setActiveTab('notices');
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1e3a8a] hover:underline"
+              >
+                <span>Go to Notices Section</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const notice = searchViewingNotice;
+                    setSearchViewingNotice(null);
+                    setSearchEditingNotice(notice);
+                  }}
+                  className="rounded-md bg-[#1e3a8a] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#172e6e]"
+                >
+                  Edit Notice
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {searchViewingApplication && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/60 p-4 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setSearchViewingApplication(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-lg rounded-xl border border-[#dce5ef] bg-white p-6 shadow-2xl space-y-4"
+          >
+            <div className="flex items-start justify-between border-b border-[#e2e8f0] pb-3">
+              <div>
+                <p className="font-mono text-xs font-bold text-[#1e3a8a]">
+                  {searchViewingApplication.serialNumber}
+                </p>
+                <h3 className="mt-0.5 text-base font-bold text-[#17243b] capitalize">
+                  {searchViewingApplication.applicationType?.replace(/_/g, ' ') || 'Application'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSearchViewingApplication(null)}
+                className="rounded-md p-1.5 text-[#64748b] hover:bg-[#f1f5f9]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="rounded-lg bg-[#f8fafc] p-3 text-xs text-[#334155] space-y-1.5 border border-[#e2e8f0]">
+              <p>
+                <strong>Applicant:</strong> {searchViewingApplication.studentName} (
+                {searchViewingApplication.studentRegNo})
+              </p>
+              <p>
+                <strong>Semester / Section:</strong> {searchViewingApplication.semester} (
+                {searchViewingApplication.section || 'A'})
+              </p>
+              <p>
+                <strong>Subject:</strong> {searchViewingApplication.subject}
+              </p>
+              <p>
+                <strong>Submitted:</strong>{' '}
+                {new Date(searchViewingApplication.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+
+            {/* Status Selector */}
+            <div className="rounded-lg border border-[#cbd5e1] p-3 space-y-2">
+              <label className="block text-xs font-bold text-[#475569]">Review Status:</label>
+              <div className="flex flex-wrap items-center gap-2">
+                {['Pending', 'Under Review', 'Approved', 'Rejected'].map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    disabled={appUpdatingStatus}
+                    onClick={() => handleUpdateAppStatusFromSearch(status)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-bold transition ${
+                      searchViewingApplication.status === status
+                        ? status === 'Approved'
+                          ? 'bg-emerald-600 text-white'
+                          : status === 'Rejected'
+                          ? 'bg-rose-600 text-white'
+                          : 'bg-[#1e3a8a] text-white'
+                        : 'border border-[#cbd5e1] bg-white text-[#475569] hover:bg-[#f1f5f9]'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-[#e2e8f0] pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchViewingApplication(null);
+                  setActiveTab('applications');
+                }}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1e3a8a] hover:underline"
+              >
+                <span>Go to Applications Tab</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSearchViewingApplication(null)}
+                className="rounded-md border border-[#cbd5e1] bg-white px-4 py-1.5 text-xs font-semibold text-[#475569] hover:bg-[#f1f5f9]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

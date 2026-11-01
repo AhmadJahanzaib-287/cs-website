@@ -1,4 +1,5 @@
 import ContactMessage from './ContactMessage.js';
+import Setting from '../settings/Setting.js';
 
 /**
  * @desc    Submit a new contact message from the public website
@@ -7,6 +8,16 @@ import ContactMessage from './ContactMessage.js';
  */
 export const createContactMessage = async (req, res) => {
   try {
+    const portalSettings = await Setting.findOne({ key: 'main_portal_settings' }).select(
+      'contactEmailNotifications maintenanceMode'
+    );
+    if (portalSettings?.maintenanceMode === true) {
+      return res.status(503).json({ success: false, message: 'The contact form is temporarily unavailable during maintenance.' });
+    }
+    if (portalSettings?.contactEmailNotifications === false) {
+      return res.status(403).json({ success: false, message: 'The department contact inbox is temporarily not accepting messages.' });
+    }
+
     const { name, email, subject, message } = req.body;
 
     if (!name || !email || !message) {

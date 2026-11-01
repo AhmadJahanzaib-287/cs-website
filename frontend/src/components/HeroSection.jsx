@@ -33,7 +33,7 @@ const rotatingSentences = [
   "Empowering Tomorrow's Digital Professionals"
 ];
 
-export default function HeroSection({ isLoading, contentReady }) {
+export default function HeroSection({ isLoading, contentReady, admissionPortalOpen = true, academicSession }) {
   const [textIndex, setTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
@@ -134,7 +134,7 @@ export default function HeroSection({ isLoading, contentReady }) {
         <motion.div variants={itemVariants} className="hero-copy lg:col-span-7 space-y-4 text-left w-full">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/30 text-cyan-400 text-[11px] font-medium shadow-inner backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-            Admissions Open — Fall 2026 (CS, SE, AI, IT)
+            {admissionPortalOpen ? `Admissions Open${academicSession ? ` — ${academicSession}` : ''} (CS, SE, AI, IT)` : 'Admissions currently closed'}
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] xl:text-5xl font-semibold text-slate-900 tracking-normal leading-[1.12]">

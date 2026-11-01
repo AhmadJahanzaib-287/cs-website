@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -25,21 +25,21 @@ import API from '../../../api/axios';
  */
 const FormInput = ({ label, id, error, icon: Icon, required, ...props }) => (
   <div className="space-y-1 w-full">
-    <label htmlFor={id} className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+    <label htmlFor={id} className="block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
       {label} {required && <span className="text-rose-500">*</span>}
     </label>
     <div className="relative flex items-center">
       {Icon && (
-        <Icon className="absolute left-3 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+        <Icon className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-[#8290a3]" />
       )}
       <input
         id={id}
         {...props}
         className={`w-full bg-slate-50 border ${
           error
-            ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
-            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/20'
-        } rounded-lg ${Icon ? 'pl-9' : 'px-3'} pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:bg-white transition-all font-medium`}
+            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/15'
+            : 'border-[#dce5ef] focus:border-[#0e7490] focus:ring-[#0e7490]/15'
+          } rounded-md bg-[#f7fafc] ${Icon ? 'pl-9' : 'px-3'} py-2 text-xs font-medium text-[#25354d] placeholder-[#91a0b3] transition focus:bg-white focus:outline-none focus:ring-2`}
       />
     </div>
     {error && (
@@ -55,7 +55,7 @@ const FormInput = ({ label, id, error, icon: Icon, required, ...props }) => (
  */
 const FormSelect = ({ label, id, error, options = [], required, ...props }) => (
   <div className="space-y-1 w-full">
-    <label htmlFor={id} className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+    <label htmlFor={id} className="block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
       {label} {required && <span className="text-rose-500">*</span>}
     </label>
     <select
@@ -63,9 +63,9 @@ const FormSelect = ({ label, id, error, options = [], required, ...props }) => (
       {...props}
       className={`w-full bg-slate-50 border ${
         error
-          ? 'border-rose-300 focus:ring-rose-500/20 focus:border-rose-500'
-          : 'border-slate-300 focus:border-blue-500 focus:ring-blue-500/20'
-      } rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:bg-white transition-all font-medium cursor-pointer`}
+            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/15'
+            : 'border-[#dce5ef] focus:border-[#0e7490] focus:ring-[#0e7490]/15'
+          } rounded-md bg-[#f7fafc] px-3 py-2 text-xs font-medium text-[#25354d] transition focus:bg-white focus:outline-none focus:ring-2`}
     >
       {options.map((opt) => (
         <option key={opt.value} value={opt.value} className="bg-white text-slate-800">
@@ -106,11 +106,20 @@ export default function FacultyForm({
   const [tagInput, setTagInput] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+  const imageInputRef = useRef(null);
 
   useEffect(() => {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveExistingImage(false);
+    setTagInput('');
+    setErrors({});
+    setStatusMessage({ type: '', text: '' });
+
     if (initialData) {
       setFormData({
         name: initialData.name || '',
@@ -139,8 +148,14 @@ export default function FacultyForm({
             : `${baseHost}${initialData.avatar.startsWith('/') ? '' : '/'}${initialData.avatar}`
         );
       }
+    } else {
+      setFormData({ ...initialFormState, specializations: [] });
     }
   }, [initialData]);
+
+  useEffect(() => () => {
+    if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
+  }, [imagePreview]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -151,13 +166,24 @@ export default function FacultyForm({
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
+    e.target.value = '';
     if (file) {
-      if (!file.type.startsWith('image/')) {
-        setErrors((prev) => ({ ...prev, image: 'Please select a valid image file.' }));
+      const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!acceptedTypes.includes(file.type.toLowerCase())) {
+        setImageFile(null);
+        setImagePreview(null);
+        setErrors((prev) => ({ ...prev, image: 'Choose a JPG, PNG, or WebP image.' }));
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setImageFile(null);
+        setImagePreview(null);
+        setErrors((prev) => ({ ...prev, image: 'Image size must not exceed 5 MB.' }));
         return;
       }
       setImageFile(file);
+      setRemoveExistingImage(false);
       setImagePreview(URL.createObjectURL(file));
       setErrors((prev) => ({ ...prev, image: null }));
     }
@@ -165,13 +191,14 @@ export default function FacultyForm({
 
   const handleAddTag = () => {
     const trimmed = tagInput.trim();
-    if (trimmed && !formData.specializations.includes(trimmed)) {
+    const alreadyAdded = formData.specializations.some((tag) => tag.toLowerCase() === trimmed.toLowerCase());
+    if (trimmed && !alreadyAdded) {
       setFormData((prev) => ({
         ...prev,
         specializations: [...prev.specializations, trimmed],
       }));
-      setTagInput('');
     }
+    if (trimmed) setTagInput('');
   };
 
   const handleRemoveTag = (tagToRemove) => {
@@ -198,6 +225,11 @@ export default function FacultyForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading || externalSubmitting) return;
+    if (errors.image) {
+      setStatusMessage({ type: 'error', text: errors.image });
+      return;
+    }
 
     if (!validate()) {
       setStatusMessage({
@@ -207,8 +239,6 @@ export default function FacultyForm({
       return;
     }
 
-    if (loading || externalSubmitting) return;
-
     try {
       setLoading(true);
       setStatusMessage({ type: '', text: '' });
@@ -216,7 +246,7 @@ export default function FacultyForm({
       const targetId = initialData?._id || initialData?.id || null;
 
       if (onSubmit) {
-        await onSubmit(formData, imageFile, targetId);
+        await onSubmit(formData, imageFile, targetId, removeExistingImage);
       } else {
         const data = new FormData();
         Object.keys(formData).forEach((key) => {
@@ -227,6 +257,7 @@ export default function FacultyForm({
           }
         });
         if (imageFile) data.append('avatar', imageFile);
+        if (removeExistingImage) data.append('removeAvatar', 'true');
 
         if (targetId) {
           await API.put(`/faculty/${targetId}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -245,6 +276,7 @@ export default function FacultyForm({
         setFormData(initialFormState);
         setImageFile(null);
         setImagePreview(null);
+        setRemoveExistingImage(false);
         setStatusMessage({ type: '', text: '' });
         if (onCancel) onCancel();
       }, 1200);
@@ -274,7 +306,7 @@ export default function FacultyForm({
   };
 
   const modalContent = (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-sm">
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/55 p-3 backdrop-blur-sm sm:p-5">
     {/* Backdrop */}
     <div 
       className="fixed inset-0" 
@@ -287,15 +319,18 @@ export default function FacultyForm({
       exit={{ opacity: 0, scale: 0.95, y: 15 }}
       transition={{ duration: 0.2 }}
       onClick={(e) => e.stopPropagation()}
-      className="relative z-10 w-full max-w-4xl bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-2xl overflow-hidden text-slate-800"
+      className="relative z-10 max-h-[94vh] w-full max-w-5xl overflow-y-auto border border-[#dce5ef] bg-white p-4 text-[#25354d] shadow-2xl sm:p-6"
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 pr-8">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600" />
-          <h3 className="text-base font-bold text-slate-900 tracking-tight">
+      <div className="mb-4 flex items-center justify-between border-b border-[#e3eaf1] pb-3 pr-8">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md border border-[#d5e1ec] bg-[#edf4f8] text-[#0e7490]"><Sparkles className="h-4 w-4" /></span>
+          <div>
+          <p className="text-[10px] font-bold uppercase text-[#0e7490]">People / Department directory</p>
+          <h3 className="text-base font-extrabold text-[#17243b]">
             {initialData ? 'Edit Faculty Member' : 'Register New Faculty'}
           </h3>
+          </div>
         </div>
       </div>
 
@@ -308,7 +343,7 @@ export default function FacultyForm({
           handleClose();
         }}
         disabled={isBtnDisabled}
-        className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer z-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute right-4 top-4 z-50 rounded-md p-2 text-[#69788d] transition hover:bg-[#f3f7fb] hover:text-[#17243b] disabled:cursor-not-allowed disabled:opacity-50"
         title="Close Form"
         aria-label="Close Form"
       >
@@ -322,10 +357,10 @@ export default function FacultyForm({
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className={`mb-3 p-3 rounded-xl flex items-center gap-2.5 text-xs font-semibold border ${
+            className={`mb-3 flex items-center gap-2.5 border px-3 py-2.5 text-xs font-semibold ${
               statusMessage.type === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                : 'bg-rose-50 border-rose-200 text-rose-700'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-rose-200 bg-rose-50 text-rose-700'
             }`}
           >
             {statusMessage.type === 'success' ? (
@@ -339,10 +374,10 @@ export default function FacultyForm({
       </AnimatePresence>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} aria-busy={isBtnDisabled} className="space-y-3">
         {/* Profile Photo Upload */}
-        <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-          <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 bg-white shrink-0 flex items-center justify-center shadow-sm">
+        <div className="flex flex-col items-start gap-3 border-y border-[#dce5ef] bg-[#f7fafc] p-3 sm:flex-row sm:items-center">
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#dce5ef] bg-white">
             {imagePreview ? (
               <>
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
@@ -351,33 +386,35 @@ export default function FacultyForm({
                   onClick={() => {
                     setImageFile(null);
                     setImagePreview(null);
+                    setRemoveExistingImage(Boolean(initialData?.avatar));
                   }}
-                  className="absolute top-0.5 right-0.5 p-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full transition shadow-md cursor-pointer"
+                  className="absolute right-1 top-1 rounded-sm bg-rose-700 p-1 text-white transition hover:bg-rose-800"
                   title="Remove Image"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
               </>
             ) : (
-              <User className="w-5 h-5 text-slate-400" />
+              <User className="h-6 w-6 text-[#b7c4d2]" />
             )}
           </div>
           <div className="flex-1 flex items-center justify-between gap-2">
             <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#25354d]">
                 PROFILE PHOTO
               </h4>
-              <p className="text-[11px] text-slate-500">
+              <p className="mt-0.5 text-[11px] text-[#69788d]">
                 Upload a formal image (PNG, JPG, WEBP up to 5MB).
               </p>
             </div>
             <div>
-              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer shadow-sm">
-                <Upload className="w-3.5 h-3.5 text-blue-600" />
+              <label className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-[#cbd8e6] bg-white px-3 text-xs font-semibold text-[#1e3a8a] transition hover:border-[#0e7490] hover:bg-[#edf7f8]">
+                <Upload className="h-3.5 w-3.5 text-[#0e7490]" />
                 <span>Upload Image</span>
                 <input
+                  ref={imageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={handleImageChange}
                   className="hidden"
                 />
@@ -478,7 +515,7 @@ export default function FacultyForm({
 
         {/* Specializations */}
         <div className="space-y-1">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-700">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
             SPECIALIZATIONS & RESEARCH AREAS
           </label>
           <div className="flex gap-2">
@@ -493,12 +530,12 @@ export default function FacultyForm({
                 }
               }}
               placeholder="e.g. Machine Learning (Press Enter)"
-              className="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all font-medium"
+              className="h-9 flex-1 rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 text-xs font-medium text-[#25354d] outline-none transition placeholder:text-[#91a0b3] focus:border-[#0e7490] focus:bg-white focus:ring-2 focus:ring-[#0e7490]/15"
             />
             <button
               type="button"
               onClick={handleAddTag}
-              className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-xs font-bold text-slate-700 transition flex items-center gap-1 cursor-pointer shrink-0"
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-md border border-[#cbd8e6] bg-white px-3 text-xs font-bold text-[#1e3a8a] transition hover:border-[#0e7490] hover:bg-[#edf7f8]"
             >
               <Plus className="w-3.5 h-3.5 text-slate-600" /> Add
             </button>
@@ -508,13 +545,14 @@ export default function FacultyForm({
             {formData.specializations.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-[11px] font-semibold text-blue-700"
+                className="inline-flex items-center gap-1 rounded-sm border border-[#d5e1ec] bg-[#edf4f8] px-2.5 py-1 text-[11px] font-semibold text-[#1e3a8a]"
               >
                 {tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
-                  className="hover:text-rose-600 transition cursor-pointer"
+                  aria-label={`Remove ${tag}`}
+                  className="text-[#69788d] transition hover:text-rose-700"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -524,7 +562,7 @@ export default function FacultyForm({
         </div>
 
         {/* Form Actions */}
-        <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+        <div className="flex items-center justify-end gap-2 border-t border-[#e3eaf1] pt-4">
           {onCancel && (
             <button
               type="button"
@@ -533,7 +571,7 @@ export default function FacultyForm({
                 handleClose();
               }}
               disabled={isBtnDisabled}
-              className="px-5 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer disabled:opacity-50"
+              className="h-10 rounded-md border border-[#dce5ef] px-4 text-xs font-semibold text-[#52647b] transition hover:bg-[#f7fafc] disabled:opacity-50"
             >
               Cancel
             </button>
@@ -541,7 +579,7 @@ export default function FacultyForm({
           <button
             type="submit"
             disabled={isBtnDisabled}
-            className="flex items-center gap-1.5 px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-500/20"
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-[#1e3a8a] px-5 text-xs font-bold text-white transition hover:bg-[#172e6e] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isBtnDisabled ? (
               <>

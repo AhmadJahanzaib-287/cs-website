@@ -7,7 +7,7 @@ const uafLogo = "/uaf-logo.png";
 
 const UAF_ADMISSION_URL = "https://web.uaf.edu.pk/Contents/admissions/un/adm_overview.html";
 
-export default function AdmissionsModal({ isOpen, onClose }) {
+export default function AdmissionsModal({ isOpen, onClose, isPortalOpen = true, deadline, academicSession }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -79,28 +79,35 @@ export default function AdmissionsModal({ isOpen, onClose }) {
                 Admissions to the Department of Computer Science at <strong className="text-slate-800">DCS Pars Campus</strong> are conducted according to the official admission policies of the <strong className="text-slate-800">University of Agriculture Faisalabad (UAF)</strong>.
               </p>
               <p>
-                Undergraduate admissions at UAF generally open each year during <strong className="text-slate-800">June & July</strong> based on the UAF entry test and merit guidelines.
+                {academicSession ? <>The current admission session is <strong className="text-slate-800">{academicSession}</strong>. </> : null}
+                Undergraduate admissions at UAF follow the official entry test and merit guidelines.
               </p>
             </div>
 
             {/* 3. IMPORTANT NOTICE / HIGHLIGHT BOX */}
-            <div className="p-3.5 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-start gap-3 mb-6">
+            <div className={`p-3.5 rounded-2xl border flex items-start gap-3 mb-6 ${isPortalOpen ? 'bg-cyan-50 border-cyan-200' : 'bg-amber-50 border-amber-200'}`}>
               <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
               <p className="text-xs text-cyan-800 font-medium leading-relaxed">
-                <strong className="text-cyan-900">Important:</strong> On the UAF admission portal, select the degree program offered specifically at the <strong className="text-slate-800">DCS Pars Campus</strong>.
+                {isPortalOpen ? (
+                  <><strong className="text-cyan-900">Admissions are open.</strong>{deadline ? <> Apply before <strong className="text-slate-800">{new Date(`${deadline}T00:00:00`).toLocaleDateString()}</strong>.</> : null} On the UAF portal, select the degree program offered at <strong className="text-slate-800">DCS Pars Campus</strong>.</>
+                ) : (
+                  <><strong className="text-amber-900">Admissions are currently closed.</strong> Please check this page later for the next session.</>
+                )}
               </p>
             </div>
 
             {/* 4. BOTTOM ACTION BUTTON */}
-            <a
-              href={UAF_ADMISSION_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-sm font-bold shadow-md shadow-blue-900/20 hover:scale-[1.01] active:scale-[0.98] transition cursor-pointer"
-            >
-              View UAF Admission Information
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            {isPortalOpen && (
+              <a
+                href={UAF_ADMISSION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-sm font-bold shadow-md shadow-blue-900/20 hover:scale-[1.01] active:scale-[0.98] transition cursor-pointer"
+              >
+                View UAF Admission Information
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            )}
           </motion.div>
         </div>
       )}

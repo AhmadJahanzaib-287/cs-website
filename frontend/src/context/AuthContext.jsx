@@ -12,6 +12,53 @@ export const AuthProvider = ({ children }) => {
     checkLoggedInUser();
   }, []);
 
+  useEffect(() => {
+    if (!user) return undefined;
+
+    let timeoutId;
+    let active = true;
+    const expireSession = () => {
+      API.post('/auth/logout').catch((error) => console.error('Session timeout logout failed:', error));
+      setUser(null);
+    };
+    const resetTimeout = (duration) => {
+      window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(expireSession, duration);
+    };
+
+    const activityEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+    let timeoutDuration = 120 * 60 * 1000;
+    const handleActivity = () => resetTimeout(timeoutDuration);
+    const handleSettingsUpdate = (event) => {
+      const minutes = Number(event.detail?.sessionTimeoutMinutes);
+      if (Number.isFinite(minutes) && minutes > 0) {
+        timeoutDuration = minutes * 60 * 1000;
+        resetTimeout(timeoutDuration);
+      }
+    };
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, handleActivity, { passive: true }));
+    window.addEventListener('portal-settings-updated', handleSettingsUpdate);
+    resetTimeout(timeoutDuration);
+
+    API.get('/settings')
+      .then(({ data }) => {
+        if (!active || !data.success) return;
+        const minutes = Number(data.data?.sessionTimeoutMinutes);
+        if (Number.isFinite(minutes) && minutes > 0) {
+          timeoutDuration = minutes * 60 * 1000;
+          resetTimeout(timeoutDuration);
+        }
+      })
+      .catch((error) => console.error('Could not load admin session timeout:', error));
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, handleActivity));
+      window.removeEventListener('portal-settings-updated', handleSettingsUpdate);
+    };
+  }, [user?.id]);
+
   const checkLoggedInUser = async () => {
     try {
       const { data } = await API.get('/auth/me');

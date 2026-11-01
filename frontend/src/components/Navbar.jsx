@@ -90,7 +90,7 @@ const StaggeredRollText = ({ text }) => {
   );
 };
 
-export default function Navbar({ variants, initial, animate, onOpenLogin }) {
+export default function Navbar({ variants, initial, animate, onOpenLogin, admissionPortalOpen = true, admissionDeadline, academicSession }) {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -365,12 +365,13 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
 </button>
             )}
 
-            <button 
-  onClick={() => setIsAdmissionOpen(true)}
-  className="px-4 py-1.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition cursor-pointer"
->
-  Apply Now
-</button>
+            <button
+              type="button"
+              onClick={() => setIsAdmissionOpen(true)}
+              className="px-4 py-1.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 hover:scale-[1.02] active:scale-95 transition cursor-pointer"
+            >
+              {admissionPortalOpen ? 'Apply Now' : 'Admissions Info'}
+            </button>
           </div>
 
           {/* HAMBURGER BUTTON (MOBILE ONLY) */}
@@ -465,15 +466,16 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
 
               {/* Mobile Actions: Login & Apply */}
               <div className="flex flex-col gap-2 border-t border-slate-800/80 pt-4">
-                <button 
-  onClick={() => {
-    setIsMobileMenuOpen(false);
-    setIsAdmissionOpen(true);
-  }}
-  className="w-full py-2.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 active:scale-[0.98] transition cursor-pointer"
->
-  Apply Now
-</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsAdmissionOpen(true);
+                  }}
+                  className="w-full py-2.5 rounded-full bg-[#1e3a8a] hover:bg-[#172e6e] text-white text-xs font-bold shadow-md shadow-blue-900/20 active:scale-[0.98] transition cursor-pointer"
+                >
+                  {admissionPortalOpen ? 'Apply Now' : 'Admissions Info'}
+                </button>
 
                 {user ? (
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
@@ -518,6 +520,9 @@ export default function Navbar({ variants, initial, animate, onOpenLogin }) {
       <AdmissionsModal 
         isOpen={isAdmissionOpen} 
         onClose={() => setIsAdmissionOpen(false)} 
+        isPortalOpen={admissionPortalOpen}
+        deadline={admissionDeadline}
+        academicSession={academicSession}
       />
     </>
   );

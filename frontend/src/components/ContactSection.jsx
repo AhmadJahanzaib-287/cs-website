@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Clock3,
+  Globe,
   Mail,
   MapPin,
   Navigation,
@@ -14,13 +15,19 @@ import {
 } from 'lucide-react';
 import API from '../api/axios';
 
-const directionsUrl = 'https://www.google.com/maps/search/?api=1&query=Department+of+Computer+Science+University+of+Agriculture+Faisalabad';
-const mapEmbedUrl = 'https://maps.google.com/maps?q=Department%20of%20Computer%20Science%2C%20University%20of%20Agriculture%20Faisalabad&t=&z=14&ie=UTF8&iwloc=&output=embed';
-
-export default function ContactSection() {
+export default function ContactSection({ settings }) {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | success | error
   const [error, setError] = useState('');
+  const departmentEmail = settings?.contactEmail || 'cs@uaf.edu.pk';
+  const departmentPhone = settings?.contactPhone || '+92 41 9200161';
+  const departmentName = settings?.shortCode || 'Department of Computer Science';
+  const campusAddress = [settings?.campusLocation, settings?.universityName]
+    .filter(Boolean)
+    .join(', ') || 'Department of Computer Science, University of Agriculture Faisalabad';
+  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(campusAddress)}`;
+  const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(campusAddress)}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+  const officialWebsite = /^https?:\/\//i.test(settings?.websiteUrl || '') ? settings.websiteUrl : null;
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -61,7 +68,7 @@ export default function ContactSection() {
         >
           <div>
             <p className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase text-[#0e7490]">
-              <span className="h-px w-7 bg-[#0e7490]" /> Department of Computer Science
+              <span className="h-px w-7 bg-[#0e7490]" /> {departmentName}
             </p>
             <h2 className="max-w-2xl text-3xl font-extrabold leading-tight text-[#17243b] sm:text-5xl">
               Let&apos;s start a conversation.
@@ -81,24 +88,24 @@ export default function ContactSection() {
             className="space-y-7"
           >
             <div className="divide-y divide-[#dce5ef] border-y border-[#dce5ef]">
-              <a href="mailto:cs@uaf.edu.pk" className="group flex items-start gap-4 py-5">
+              <a href={`mailto:${departmentEmail}`} className="group flex items-start gap-4 py-5">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
                   <Mail className="h-4 w-4" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-xs font-bold uppercase text-[#69788d]">Email the department</span>
-                  <span className="mt-1 block break-all text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">cs@uaf.edu.pk</span>
+                  <span className="mt-1 block break-all text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">{departmentEmail}</span>
                 </span>
                 <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-[#8290a3] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0e7490]" />
               </a>
 
-              <a href="tel:+92419200161" className="group flex items-start gap-4 py-5">
+              <a href={`tel:${departmentPhone.replace(/[^+\d]/g, '')}`} className="group flex items-start gap-4 py-5">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-[#1e3a8a] shadow-sm ring-1 ring-[#dce5ef]">
                   <Phone className="h-4 w-4" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-xs font-bold uppercase text-[#69788d]">Call the department</span>
-                  <span className="mt-1 block text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">+92 41 9200161</span>
+                  <span className="mt-1 block text-sm font-semibold text-[#17243b] group-hover:text-[#0e7490]">{departmentPhone}</span>
                   <span className="mt-0.5 block text-xs text-[#69788d]">Extensions 5052, 5040</span>
                 </span>
                 <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-[#8290a3] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#0e7490]" />
@@ -122,7 +129,7 @@ export default function ContactSection() {
                   <MapPin className="h-4 w-4 shrink-0 text-[#0e7490]" />
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-[#17243b]">Find us on campus</p>
-                    <p className="truncate text-xs text-[#69788d]">University of Agriculture, Faisalabad</p>
+                    <p className="truncate text-xs text-[#69788d]">{campusAddress}</p>
                   </div>
                 </div>
                 <a
@@ -143,6 +150,11 @@ export default function ContactSection() {
                 allowFullScreen
               />
             </div>
+            {officialWebsite && (
+              <a href={officialWebsite} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1e3a8a] hover:text-[#0e7490]">
+                <Globe className="h-3.5 w-3.5" /> Official department website
+              </a>
+            )}
           </motion.div>
 
           <motion.div

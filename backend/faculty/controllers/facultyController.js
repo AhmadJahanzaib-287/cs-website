@@ -1,4 +1,5 @@
 import Faculty from '../models/Faculty.js';
+import { deleteFacultyImage } from '../utils/deleteFacultyImage.js';
 
 const parseSpecializations = (value) => {
   if (Array.isArray(value)) {
@@ -198,11 +199,16 @@ export const updateFaculty = async (req, res) => {
     }
 
     const updateData = { ...req.body };
+    const previousAvatar = faculty.avatar;
+    const removeAvatar = req.body.removeAvatar === 'true';
 
     // Process new image upload if present
     if (req.file) {
       updateData.avatar = `/uploads/${req.file.filename}`;
+    } else if (removeAvatar) {
+      updateData.avatar = '';
     }
+    delete updateData.removeAvatar;
 
     if (Object.hasOwn(updateData, 'specializations')) {
       updateData.specializations = parseSpecializations(updateData.specializations);
@@ -212,6 +218,10 @@ export const updateFaculty = async (req, res) => {
       new: true,
       runValidators: true,
     });
+
+    if (previousAvatar && previousAvatar !== faculty.avatar && (req.file || removeAvatar)) {
+      await deleteFacultyImage(previousAvatar);
+    }
 
     return res.status(200).json({
       success: true,

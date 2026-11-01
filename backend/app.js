@@ -9,13 +9,15 @@ import { fileURLToPath } from 'url';
 // Import Routes
 import authRoutes from './routes/authRoutes.js';
 import downloadRoutes from './routes/downloadRoutes.js';
-// 1. IMPORT FACULTY ROUTES (Fix Added)
 import facultyRoutes from './faculty/routes/facultyRoutes.js';
 import workloadRoutes from './workload/routes/workloadRoutes.js';
-//import contactRoutes from './contact/contactRoutes.js';
 import noticeRoutes from './notice/routes/noticeRoutes.js';
-//import contactRoutes from './routes/contactRoutes.js';
 import contactRoutes from './contact/Contactroutes.js';
+import applicationRoutes from './applications/applicationRoutes.js';
+import studentRoutes from './students/studentRoutes.js';
+import settingRoutes from './settings/settingRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -76,11 +78,13 @@ app.get('/api/v1/health', (req, res) => {
 // API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/downloads', downloadRoutes);
-// 2. MOUNT FACULTY ROUTE (Fix Added)
 app.use('/api/v1/faculty', facultyRoutes);
 app.use('/api/v1/workload', workloadRoutes);
 app.use('/api/v1/notices', noticeRoutes);
 app.use('/api/v1/contact', contactRoutes);
-//app.use('/api/v1/contact', contactRoutes);
+app.use('/api/v1/applications', applicationRoutes);
+app.use('/api/v1/students', studentRoutes);
+app.use('/api/v1/settings', settingRoutes);
+app.use('/api/v1/search', searchRoutes);
 
 export default app;

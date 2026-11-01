@@ -22,6 +22,8 @@ const AdminNoticePanel = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingNotice, setEditingNotice] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [isSavingNotice, setIsSavingNotice] = useState(false);
+  const [noticeSaveError, setNoticeSaveError] = useState('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +50,8 @@ const AdminNoticePanel = () => {
 
   // 2. Create or Update Notice
   const handleCreateOrUpdate = async (formData) => {
+    setIsSavingNotice(true);
+    setNoticeSaveError('');
     try {
       if (editingNotice) {
         await API.put(`/notices/${editingNotice._id}`, formData);
@@ -57,8 +61,13 @@ const AdminNoticePanel = () => {
       setIsModalOpen(false);
       setEditingNotice(null);
       fetchNotices();
+      return true;
     } catch (err) {
       console.error('Error saving notice:', err);
+      setNoticeSaveError(err.response?.data?.message || 'Could not save this notice. Please try again.');
+      return false;
+    } finally {
+      setIsSavingNotice(false);
     }
   };
 
@@ -97,6 +106,9 @@ const AdminNoticePanel = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const activeNotices = notices.filter((notice) => notice.isActive).length;
+  const urgentNotices = notices.filter((notice) => notice.priority === 'Emergency').length;
+  const feedNotices = notices.filter((notice) => notice.showInFeed).length;
 
   const getPriorityBadge = (priority) => {
     switch (priority) {
@@ -110,40 +122,50 @@ const AdminNoticePanel = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="bg-white border border-gray-100 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a]">
-            <Bell className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
-              Notice Management
-            </h2>
-            <p className="text-xs text-gray-500 font-medium mt-0.5">
-              Manage broadcasts, exam alerts, and website popup announcements.
-            </p>
-          </div>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="flex flex-col gap-4 border-b border-[#d5e1ec] pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase text-[#0e7490]"><span className="h-px w-7 bg-[#0e7490]" /> Communications / Website</p>
+          <h2 className="text-2xl font-extrabold text-[#17243b] sm:text-3xl">Notice management</h2>
+          <p className="mt-1.5 text-sm text-[#69788d]">Publish campus updates, priority alerts, and feed announcements.</p>
         </div>
 
         <button
           onClick={() => {
             setEditingNotice(null);
+            setNoticeSaveError('');
             setIsModalOpen(true);
           }}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-[#1b337a] text-xs font-bold text-white shadow-md transition cursor-pointer"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1e3a8a] px-4 text-xs font-bold text-white transition hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490]"
         >
-          <Plus className="w-4 h-4 stroke-[3]" /> Create Notice
+          <Plus className="h-4 w-4" /> Create notice
         </button>
+      </header>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {[
+          { label: 'All notices', value: notices.length, tone: 'text-[#0e7490] bg-[#e8f5f6]' },
+          { label: 'Active now', value: activeNotices, tone: 'text-emerald-700 bg-emerald-50' },
+          { label: 'Emergency', value: urgentNotices, tone: 'text-rose-700 bg-rose-50' },
+          { label: 'In public feed', value: feedNotices, tone: 'text-[#1e3a8a] bg-[#edf2fb]' },
+        ].map((stat) => (
+          <div key={stat.label} className="border-y border-[#dce5ef] bg-white px-4 py-3.5 first:border-l last:border-r sm:px-5">
+            <p className="text-xs font-semibold text-[#69788d]">{stat.label}</p>
+            <p className="mt-2 flex items-center gap-2 text-2xl font-extrabold tabular-nums text-[#17243b]">
+              {stat.value}<span className={`h-2 w-2 rounded-full ${stat.tone.split(' ')[1]}`} />
+            </p>
+          </div>
+        ))}
       </div>
 
-      {/* Main Section Container */}
-      <div className="bg-white border border-gray-100 p-6 rounded-3xl">
-        {/* Search & Stats Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 w-full sm:w-80 bg-gray-50/80 border border-gray-200 px-3.5 py-2 rounded-xl text-xs">
-            <Search className="w-4 h-4 text-gray-400" />
+      <section className="border-y border-[#dce5ef] bg-white" aria-label="Notice directory">
+        <div className="flex flex-col gap-3 border-b border-[#e3eaf1] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div>
+            <h3 className="text-sm font-bold text-[#25354d]">Published notices</h3>
+            <p className="mt-1 text-xs text-[#8290a3]">{filteredNotices.length} records · newest campus communications</p>
+          </div>
+          <label className="flex h-10 w-full items-center gap-2 rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 sm:max-w-sm">
+            <Search className="h-4 w-4 shrink-0 text-[#8290a3]" />
             <input
               type="text"
               value={searchQuery}
@@ -151,81 +173,84 @@ const AdminNoticePanel = () => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search notices by title or content..."
-              className="bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 w-full"
+              placeholder="Search title or notice text"
+              aria-label="Search notices"
+              className="w-full bg-transparent text-xs text-[#25354d] outline-none placeholder:text-[#91a0b3]"
             />
-          </div>
-          <span className="text-xs text-gray-500 font-medium">
-            Total Notices: <strong className="text-[#1e3a8a]">{filteredNotices.length}</strong>
-          </span>
+          </label>
         </div>
 
         {/* Content Area */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-            <Loader2 className="w-8 h-8 animate-spin text-[#1e3a8a] mb-2" />
+          <div className="flex min-h-56 flex-col items-center justify-center text-[#69788d]">
+            <Loader2 className="mb-2 h-6 w-6 animate-spin text-[#0e7490]" />
             <p className="text-xs font-medium">Loading notices...</p>
           </div>
         ) : paginatedNotices.length === 0 ? (
-          <div className="py-12 text-center border border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
-            <Inbox className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-            <p className="text-xs text-gray-500 italic">No notices found.</p>
+          <div className="py-16 text-center">
+            <Inbox className="mx-auto mb-3 h-8 w-8 text-[#b7c4d2]" />
+            <p className="text-sm font-bold text-[#40516a]">No notices found</p>
+            <p className="mt-1 text-xs text-[#8290a3]">Create a notice or adjust your search.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-gray-700">
-              <thead className="bg-gray-50/80 text-gray-500 font-bold border-b border-gray-100 uppercase text-[10px] tracking-wider">
+            <table className="w-full min-w-[780px] text-left text-xs text-[#52647b]">
+              <thead className="border-b border-[#e3eaf1] bg-[#f7fafc] text-[10px] font-bold uppercase tracking-wider text-[#8290a3]">
                 <tr>
-                  <th className="p-3.5 rounded-l-xl">Title & Description</th>
-                  <th className="p-3.5">Priority</th>
-                  <th className="p-3.5">Active Window</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5 text-right rounded-r-xl">Actions</th>
+                  <th className="px-5 py-3">Notice</th>
+                  <th className="px-5 py-3">Priority</th>
+                  <th className="px-5 py-3">Schedule</th>
+                  <th className="px-5 py-3">Visibility</th>
+                  <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#edf1f5]">
                 {paginatedNotices.map((notice) => (
-                  <tr key={notice._id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="p-3.5 max-w-xs">
-                      <p className="font-bold text-gray-900 truncate">{notice.title}</p>
-                      <p className="text-[11px] text-gray-500 truncate mt-0.5">{notice.description}</p>
+                  <tr key={notice._id} className="transition-colors hover:bg-[#fbfcfd]">
+                    <td className="max-w-sm px-5 py-4">
+                      <p className="truncate font-bold text-[#25354d]">{notice.title}</p>
+                      <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-[#69788d]">{notice.description}</p>
                     </td>
-                    <td className="p-3.5">{getPriorityBadge(notice.priority)}</td>
-                    <td className="p-3.5 text-[11px] text-gray-500">
-                      <div><strong className="text-gray-700">Start:</strong> {new Date(notice.startDate).toLocaleString()}</div>
-                      <div><strong className="text-gray-700">End:</strong> {new Date(notice.endDate).toLocaleString()}</div>
+                    <td className="whitespace-nowrap px-5 py-4">{getPriorityBadge(notice.priority)}</td>
+                    <td className="whitespace-nowrap px-5 py-4 text-[10px] text-[#69788d]">
+                      <div><strong className="text-[#40516a]">From</strong> {new Date(notice.startDate).toLocaleString()}</div>
+                      <div className="mt-1"><strong className="text-[#40516a]">Until</strong> {new Date(notice.endDate).toLocaleString()}</div>
                     </td>
-                    <td className="p-3.5">
+                    <td className="px-5 py-4">
                       <button
                         onClick={() => handleToggleStatus(notice._id)}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold border flex items-center gap-1.5 transition cursor-pointer ${
+                        aria-label={`${notice.isActive ? 'Deactivate' : 'Activate'} ${notice.title}`}
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold transition ${
                           notice.isActive
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                            : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                            : 'border-[#dce5ef] bg-[#f3f7fb] text-[#69788d] hover:bg-[#e9eff5]'
                         }`}
                       >
-                        <Power className="w-3 h-3" />
+                        <Power className="h-3 w-3" />
                         {notice.isActive ? 'Active' : 'Inactive'}
                       </button>
                     </td>
-                    <td className="p-3.5 text-right">
+                    <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => {
                             setEditingNotice(notice);
+                            setNoticeSaveError('');
                             setIsModalOpen(true);
                           }}
-                          className="p-1.5 bg-gray-50 border border-gray-200 text-gray-600 hover:text-[#1e3a8a] hover:border-blue-200 hover:bg-blue-50 rounded-lg transition cursor-pointer"
-                          title="Edit Notice"
+                          className="rounded-md border border-[#dce5ef] bg-white p-2 text-[#69788d] transition hover:border-[#b9dce2] hover:bg-[#edf7f8] hover:text-[#1e3a8a]"
+                          title="Edit notice"
+                          aria-label={`Edit ${notice.title}`}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Edit3 className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => setDeletingId(notice._id)}
-                          className="p-1.5 bg-gray-50 border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-lg transition cursor-pointer"
-                          title="Delete Notice"
+                          className="rounded-md border border-[#dce5ef] bg-white p-2 text-[#69788d] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                          title="Delete notice"
+                          aria-label={`Delete ${notice.title}`}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </td>
@@ -238,27 +263,29 @@ const AdminNoticePanel = () => {
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-4 mt-4 border-t border-gray-100 text-xs text-gray-500 font-medium">
+          <div className="flex items-center justify-between border-t border-[#e3eaf1] px-5 py-3 text-xs font-medium text-[#69788d]">
             <span>Page {currentPage} of {totalPages}</span>
             <div className="flex items-center gap-2">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                className="p-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition cursor-pointer"
+                aria-label="Previous page"
+                className="rounded-md border border-[#dce5ef] bg-white p-2 text-[#52647b] transition hover:bg-[#f7fafc] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-                className="p-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition cursor-pointer"
+                aria-label="Next page"
+                className="rounded-md border border-[#dce5ef] bg-white p-2 text-[#52647b] transition hover:bg-[#f7fafc] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Notice Create/Edit Modal */}
       <NoticeModal
@@ -266,32 +293,35 @@ const AdminNoticePanel = () => {
         onClose={() => {
           setIsModalOpen(false);
           setEditingNotice(null);
+          setNoticeSaveError('');
         }}
         onSubmit={handleCreateOrUpdate}
         initialData={editingNotice}
+        isSubmitting={isSavingNotice}
+        submitError={noticeSaveError}
       />
 
       {/* Delete Confirmation Modal */}
       {deletingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-gray-100 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl">
-            <div className="w-12 h-12 bg-red-50 border border-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
-              <AlertTriangle className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/55 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm space-y-4 border border-[#dce5ef] bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md border border-rose-200 bg-rose-50 text-rose-700">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-gray-900">Delete Notice?</h3>
-              <p className="text-xs text-gray-500 font-medium mt-1">This action cannot be undone. Are you sure you want to permanently remove this notice?</p>
+              <h3 className="text-base font-bold text-[#17243b]">Delete this notice?</h3>
+              <p className="mt-1 text-xs leading-5 text-[#69788d]">This will permanently remove it from the website and notices feed.</p>
             </div>
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center gap-2 border-t border-[#e3eaf1] pt-4">
               <button
                 onClick={() => setDeletingId(null)}
-                className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition cursor-pointer"
+                className="h-10 flex-1 border border-[#dce5ef] bg-white text-xs font-bold text-[#52647b] transition hover:bg-[#f7fafc]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition cursor-pointer"
+                className="h-10 flex-1 bg-rose-700 text-xs font-bold text-white transition hover:bg-rose-800"
               >
                 Delete
               </button>

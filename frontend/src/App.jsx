@@ -19,6 +19,7 @@ import ContactSection from './components/ContactSection';
 import PublicNoticePopup from "./components/notice/PublicNoticePopup";
 import Footer from './components/Footer';
 import ScrollToTopButton from './components/ScrollToTopButton'; 
+import API from './api/axios';
 
 // Application Generator component
 import ApplicationGenerator from './components/applications/ApplicationGenerator';
@@ -67,10 +68,23 @@ function AppContent() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [contentReady, setContentReady] = useState(false);
+  const [portalSettings, setPortalSettings] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    const applyUpdatedSettings = (event) => setPortalSettings(event.detail);
+    window.addEventListener('portal-settings-updated', applyUpdatedSettings);
+    API.get('/settings')
+      .then(({ data }) => {
+        if (data.success) setPortalSettings(data.data);
+      })
+      .catch((error) => console.error('Could not load public portal settings:', error));
+
+    return () => window.removeEventListener('portal-settings-updated', applyUpdatedSettings);
+  }, []);
 
   // Reset scroll on initial load
   useEffect(() => {
@@ -105,6 +119,28 @@ function AppContent() {
     }
   }, [isLoading]);
 
+  if (!isAdminRoute && portalSettings?.maintenanceMode && !user) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f3f7fb] px-5 py-16 text-center text-[#17243b]">
+        <div className="max-w-lg">
+          <p className="text-xs font-bold uppercase tracking-wider text-[#0e7490]">{portalSettings.departmentName}</p>
+          <h1 className="mt-4 text-3xl font-extrabold">Portal maintenance</h1>
+          <p className="mt-3 text-sm leading-6 text-[#64748b]">
+            The public portal is temporarily unavailable while we complete system updates. Please check back shortly.
+          </p>
+          <button
+            type="button"
+            onClick={() => setIsLoginOpen(true)}
+            className="mt-6 rounded-md bg-[#1e3a8a] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#172e6e]"
+          >
+            Admin sign in
+          </button>
+        </div>
+        {isLoginOpen && <LoginPage onClose={() => setIsLoginOpen(false)} />}
+      </main>
+    );
+  }
+
   return (
     <div className={`relative min-h-screen overflow-hidden ${isAdminRoute ? 'bg-gray-100 text-gray-800' : 'public-light-theme bg-gray-100 text-gray-900'}`}>
       
@@ -137,7 +173,16 @@ function AppContent() {
           initial="hidden"
           animate={isLoading ? "hidden" : "visible"}
           onOpenLogin={() => setIsLoginOpen(true)} 
+          admissionPortalOpen={portalSettings?.admissionPortalOpen !== false}
+          admissionDeadline={portalSettings?.admissionDeadline}
+          academicSession={portalSettings?.currentAcademicSession}
         />
+      )}
+
+      {!isAdminRoute && portalSettings?.emergencyNoticeActive && portalSettings.emergencyNoticeText && (
+        <div role="status" className="relative z-30 bg-amber-500 px-4 py-2 text-center text-xs font-semibold text-[#17243b]">
+          {portalSettings.emergencyNoticeText}
+        </div>
       )}
 
       {/* Glassy Login Modal Pop-up */}
@@ -158,11 +203,16 @@ function AppContent() {
   path="/" 
   element={
     <>
-      <HeroSection isLoading={isLoading} contentReady={contentReady} onOpenLogin={() => setIsLoginOpen(true)} />
+      <HeroSection
+        isLoading={isLoading}
+        contentReady={contentReady}
+        admissionPortalOpen={portalSettings?.admissionPortalOpen !== false}
+        academicSession={portalSettings?.currentAcademicSession}
+      />
       <StatsVisionSection />
       <AcademicPrograms />
       <AboutSection />
-      <ContactSection />
+      <ContactSection settings={portalSettings} />
     </>
   } 
 />
@@ -178,18 +228,7 @@ function AppContent() {
           <Route 
             path="/applications" 
             element={
-              <div className="w-full min-h-[85vh] relative pt-16">
-                <div className="absolute top-20 left-6 z-20"> 
-                  <button 
-                    onClick={() => navigate('/')}
-                    className="text-xs font-bold text-cyan-400 hover:text-cyan-300 bg-slate-900/90 px-4 py-2 rounded-xl border border-slate-800 transition-colors cursor-pointer shadow-lg backdrop-blur-md"
-                  >
-                    ← Back to Main Home
-                  </button>
-                </div>
-                
-                <ApplicationGenerator />
-              </div>
+              <ApplicationGenerator onBack={() => navigate('/')} />
             } 
           />
 

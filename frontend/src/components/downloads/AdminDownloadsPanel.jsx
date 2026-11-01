@@ -13,6 +13,9 @@ import {
   Folder,
   Calendar,
   Loader2,
+  Search,
+  ArrowDownToLine,
+  AlertTriangle,
 } from 'lucide-react';
 import API from '../../api/axios.js';
 
@@ -25,11 +28,16 @@ export default function AdminDownloadsPanel() {
   const [files, setFiles] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [deletingItem, setDeletingItem] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [fetchingFiles, setFetchingFiles] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [listError, setListError] = useState('');
 
   // Fetch downloads list
   const loadFiles = async () => {
@@ -43,9 +51,10 @@ export default function AdminDownloadsPanel() {
         (Array.isArray(res.data) ? res.data : []);
 
       setFiles(Array.isArray(fileData) ? fileData : []);
+      setListError('');
     } catch (err) {
       console.error('Error loading files:', err);
-      setFiles([]);
+      setListError(err.response?.data?.message || 'Could not load downloads. Please try again.');
     } finally {
       setFetchingFiles(false);
     }
@@ -81,8 +90,12 @@ export default function AdminDownloadsPanel() {
     setSuccessMsg('');
     setErrorMsg('');
 
-    if (!title || (!editingId && !file)) {
+    if (!title.trim() || (!editingId && !file)) {
       setErrorMsg('Title aur file dono zaroori hain');
+      return;
+    }
+    if (file && file.size > 20 * 1024 * 1024) {
+      setErrorMsg('File size cannot exceed 20 MB.');
       return;
     }
 
@@ -90,7 +103,7 @@ export default function AdminDownloadsPanel() {
 
     try {
       const formData = new FormData();
-      formData.append('title', title);
+      formData.append('title', title.trim());
       formData.append('description', description);
       formData.append('category', category);
       if (file) {
@@ -109,10 +122,8 @@ export default function AdminDownloadsPanel() {
         setSuccessMsg('File successfully upload ho gayi!');
       }
 
-      setTimeout(async () => {
-        handleCloseModal();
-        await loadFiles();
-      }, 800);
+      handleCloseModal();
+      await loadFiles();
     } catch (err) {
       setErrorMsg(err.response?.data?.message || 'Operation fail ho gaya, dobara try karein');
     } finally {
@@ -132,206 +143,220 @@ export default function AdminDownloadsPanel() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Kya aap is file ko delete karna chahte hain?')) return;
-
+    setIsDeleting(true);
+    setErrorMsg('');
     try {
       await API.delete(`/downloads/${id}`);
-      loadFiles();
+      setDeletingItem(null);
+      await loadFiles();
     } catch (err) {
-      alert(err.response?.data?.message || 'Delete fail ho gaya, dobara try karein');
+      setErrorMsg(err.response?.data?.message || 'Could not delete this download. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
+  const categories = ['All', ...new Set(files.map((item) => item.category || 'General'))];
+  const filteredFiles = files.filter((item) => {
+    const categoryMatches = selectedCategory === 'All' || (item.category || 'General') === selectedCategory;
+    const query = searchQuery.trim().toLowerCase();
+    const searchMatches = !query || [item.title, item.description, item.fileName, item.category]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+    return categoryMatches && searchMatches;
+  });
+
   return (
-    <div className="space-y-6">
-      {/* Top Action Header */}
-      <div className="bg-white border border-gray-100 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a]">
-            <Download className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 tracking-tight">Downloads Management</h2>
-            <p className="text-xs text-gray-500 font-medium mt-0.5">
-              Manage downloadable resources, forms, notices, and documents.
-            </p>
-          </div>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="flex flex-col gap-4 border-b border-[#d5e1ec] pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase text-[#0e7490]"><span className="h-px w-7 bg-[#0e7490]" /> Student services / Resource library</p>
+          <h2 className="text-2xl font-extrabold text-[#17243b] sm:text-3xl">Downloads</h2>
+          <p className="mt-1.5 text-sm text-[#69788d]">Publish and maintain forms, notices, and academic resources.</p>
         </div>
 
         <button
           onClick={handleOpenCreateModal}
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1e3a8a] hover:bg-[#1b337a] text-xs font-bold text-white shadow-md transition cursor-pointer"
+          className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-md bg-[#1e3a8a] px-4 text-xs font-bold text-white transition hover:bg-[#172e6e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0e7490] sm:self-auto"
         >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          Upload Download File
+          <Plus className="h-4 w-4" /> Upload resource
         </button>
+      </header>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {categories.filter((item) => item !== 'All').slice(0, 4).map((item) => (
+          <div key={item} className="border-y border-[#dce5ef] bg-white px-4 py-3.5 first:border-l last:border-r sm:px-5">
+            <p className="text-xs font-semibold text-[#69788d]">{item}</p>
+            <p className="mt-2 text-2xl font-extrabold tabular-nums text-[#17243b]">{files.filter((fileItem) => (fileItem.category || 'General') === item).length}</p>
+          </div>
+        ))}
+        {categories.length === 1 && <div className="col-span-2 border-y border-[#dce5ef] bg-white px-4 py-3.5 sm:px-5 xl:col-span-4"><p className="text-xs font-semibold text-[#69788d]">Published resources</p><p className="mt-2 text-2xl font-extrabold tabular-nums text-[#17243b]">{files.length}</p></div>}
       </div>
 
       {/* Uploaded Files Section List */}
-      <div className="bg-white border border-gray-100 p-6 rounded-3xl">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
-          <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-            <Folder className="w-4 h-4 text-[#1e3a8a]" /> Uploaded Files List
-          </h3>
-          <span className="text-xs text-gray-500 font-medium">
-            Total Files: <strong className="text-[#1e3a8a]">{files.length}</strong>
-          </span>
+      <section className="border-y border-[#dce5ef] bg-white" aria-label="Download inventory">
+        <div className="flex flex-col gap-3 border-b border-[#e3eaf1] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div>
+            <h3 className="flex items-center gap-2 text-sm font-bold text-[#25354d]"><Folder className="h-4 w-4 text-[#0e7490]" />Resource library</h3>
+            <p className="mt-1 text-xs text-[#8290a3]">{filteredFiles.length} of {files.length} resources</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <label className="flex h-10 w-full items-center gap-2 rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 sm:w-64">
+              <Search className="h-4 w-4 shrink-0 text-[#8290a3]" />
+              <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search resources" aria-label="Search downloads" className="w-full bg-transparent text-xs text-[#25354d] outline-none placeholder:text-[#91a0b3]" />
+            </label>
+            <select value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)} aria-label="Filter downloads by category" className="h-10 rounded-md border border-[#dce5ef] bg-white px-3 text-xs font-semibold text-[#52647b] outline-none focus:border-[#0e7490]">
+              {categories.map((item) => <option key={item} value={item}>{item === 'All' ? 'All categories' : item}</option>)}
+            </select>
+          </div>
         </div>
 
+        {listError && <p role="alert" className="m-4 border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-medium text-rose-700">{listError}</p>}
+
         {fetchingFiles ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-            <Loader2 className="w-8 h-8 animate-spin text-[#1e3a8a] mb-2" />
-            <p className="text-xs font-medium">Loading files...</p>
+          <div className="flex min-h-56 flex-col items-center justify-center text-[#69788d]">
+            <Loader2 className="mb-2 h-6 w-6 animate-spin text-[#0e7490]" />
+            <p className="text-xs font-medium">Loading resources...</p>
           </div>
-        ) : !Array.isArray(files) || files.length === 0 ? (
-          <div className="py-12 text-center border border-dashed border-gray-200 rounded-2xl bg-gray-50/50">
-            <FileText className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-            <p className="text-xs text-gray-500 italic">No files uploaded yet.</p>
+        ) : !listError && files.length === 0 ? (
+          <div className="py-16 text-center">
+            <FileText className="mx-auto mb-3 h-8 w-8 text-[#b7c4d2]" />
+            <p className="text-sm font-bold text-[#40516a]">No resources uploaded yet</p>
+            <p className="mt-1 text-xs text-[#8290a3]">Upload a document to publish it on the public downloads page.</p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {files.map((item) => (
+        ) : !listError && filteredFiles.length === 0 ? (
+          <div className="py-14 text-center">
+            <Search className="mx-auto mb-3 h-7 w-7 text-[#b7c4d2]" />
+            <p className="text-sm font-bold text-[#40516a]">No matching resources</p>
+          </div>
+        ) : !listError && (
+          <div className="divide-y divide-[#e3eaf1]">
+            {filteredFiles.map((item) => (
               <div
                 key={item._id}
-                className="p-5 rounded-2xl bg-white border border-gray-100 hover:border-blue-200 shadow-sm hover:shadow-md flex flex-col justify-between transition-all group"
+                className="flex flex-col gap-4 px-4 py-4 transition-colors hover:bg-[#fbfcfd] sm:flex-row sm:items-center sm:px-5"
               >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-[#1e3a8a] transition-colors">
-                      {item.title}
-                    </h4>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1e3a8a] border border-blue-100 shrink-0">
-                      {item.category || 'General'}
-                    </span>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[#d5e1ec] bg-[#edf4f8] text-[#1e3a8a]">
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="max-w-full truncate text-sm font-bold text-[#25354d]">{item.title}</h4>
+                    <span className="rounded-sm border border-[#d5e1ec] bg-[#edf4f8] px-2 py-0.5 text-[10px] font-bold text-[#1e3a8a]">{item.category || 'General'}</span>
                   </div>
-
-                  {item.description ? (
-                    <p className="text-xs text-gray-500 line-clamp-2 min-h-[32px]">
-                      {item.description}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-gray-400 italic min-h-[32px]">
-                      No description provided.
-                    </p>
-                  )}
-
-                  <div className="pt-2 border-t border-gray-100 space-y-1">
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-600">
-                      <FileText className="w-3.5 h-3.5 text-[#1e3a8a] shrink-0" />
-                      <span className="truncate">
-                        {item.originalName || item.fileName || item.fileUrl || 'Attached File'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                      <Calendar className="w-3 h-3 shrink-0" />
-                      <span>
-                        Uploaded:{' '}
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
-                      </span>
-                    </div>
+                  <p className="mt-1 line-clamp-1 text-xs text-[#69788d]">{item.description || item.fileName || 'No description provided.'}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-[#8290a3]">
+                    <span className="max-w-56 truncate">{item.fileName || 'Attached file'}</span>
+                    <span>{item.fileSize ? item.fileSize >= 1024 * 1024 ? `${(item.fileSize / (1024 * 1024)).toFixed(1)} MB` : `${Math.round(item.fileSize / 1024)} KB` : 'Size unavailable'}</span>
+                    <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Date unavailable'}</span>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 pt-4 mt-3 border-t border-gray-100">
+                <div className="flex shrink-0 items-center gap-2">
+                  <a href={`${API.defaults.baseURL}/downloads/file/${item._id}`} aria-label={`Download ${item.title}`} className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#dce5ef] bg-white px-3 text-xs font-bold text-[#1e3a8a] transition hover:border-[#b9dce2] hover:bg-[#edf7f8]"><ArrowDownToLine className="h-4 w-4" /><span className="hidden sm:inline">Download</span></a>
                   <button
+                    type="button"
                     onClick={() => handleEdit(item)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] font-bold text-xs transition cursor-pointer border border-blue-100"
+                    aria-label={`Edit ${item.title}`}
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#dce5ef] bg-white px-3 text-xs font-bold text-[#52647b] transition hover:border-[#b9dce2] hover:bg-[#edf7f8] hover:text-[#1e3a8a]"
                   >
-                    <Edit className="w-3.5 h-3.5" />
-                    Edit
+                    <Edit className="h-3.5 w-3.5" /><span className="hidden sm:inline">Edit</span>
                   </button>
 
                   <button
-                    onClick={() => handleDelete(item._id)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs border border-red-100 transition cursor-pointer"
+                    type="button"
+                    onClick={() => { setErrorMsg(''); setDeletingItem(item); }}
+                    aria-label={`Delete ${item.title}`}
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-[#dce5ef] bg-white px-3 text-xs font-bold text-[#69788d] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Delete
+                    <Trash2 className="h-3.5 w-3.5" /><span className="hidden sm:inline">Delete</span>
                   </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Modal Popup (Same Size & Styling as Notice Modal) */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#10203d]/55 p-3 backdrop-blur-sm sm:p-5">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-4xl bg-white border border-gray-100 rounded-3xl shadow-2xl relative overflow-hidden text-gray-800"
+              className="relative max-h-[94vh] w-full max-w-4xl overflow-y-auto border border-[#dce5ef] bg-white text-[#25354d] shadow-2xl"
             >
               {/* Close Button */}
               <button
+                type="button"
                 onClick={handleCloseModal}
-                className="absolute top-5 right-5 p-2 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer z-10"
+                aria-label="Close upload form"
+                className="absolute right-4 top-4 z-10 rounded-md p-2 text-[#69788d] transition hover:bg-[#f3f7fb] hover:text-[#17243b]"
               >
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="p-6 sm:p-7">
+              <div className="p-4 sm:p-6">
                 {/* Header */}
-                <div className="flex items-center gap-3.5 mb-4 pb-3 border-b border-gray-100">
-                  <div className="p-2.5 rounded-2xl bg-blue-50 border border-blue-100 text-[#1e3a8a]">
-                    <UploadCloud className="w-5 h-5" />
+                <div className="mb-5 flex items-center gap-3 border-b border-[#e3eaf1] pb-4 pr-10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[#d5e1ec] bg-[#edf4f8] text-[#0e7490]">
+                    <UploadCloud className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight">
+                    <p className="text-[10px] font-bold uppercase text-[#0e7490]">Student services / Resource library</p>
+                    <h3 className="mt-0.5 text-lg font-extrabold text-[#17243b] sm:text-xl">
                       {editingId ? 'Edit File' : 'Upload Download File'}
                     </h3>
-                    <p className="text-[11px] text-gray-500 font-medium">
-                      Fill details below to update website downloads.
+                    <p className="text-xs text-[#69788d]">
+                      Add document details and select a resource file.
                     </p>
                   </div>
                 </div>
 
                 {/* Form Body */}
-                <form onSubmit={handleSubmit} className="space-y-3.5">
+                <form onSubmit={handleSubmit} aria-busy={loading} className="space-y-4">
                   {errorMsg && (
-                    <div className="flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2">
+                    <div role="alert" className="flex items-center gap-2 border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-semibold text-rose-700">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       {errorMsg}
                     </div>
                   )}
 
                   {successMsg && (
-                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2">
+                    <div role="status" className="flex items-center gap-2 border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-semibold text-emerald-700">
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
                       {successMsg}
                     </div>
                   )}
 
                   {/* 2-Column Grid Layout */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                  <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
                     {/* Left Column */}
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">
+                        <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
                           Title <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
+                          maxLength={140}
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                           placeholder="e.g. Admission Form 2026"
-                          className="w-full px-3.5 py-2 rounded-xl bg-gray-50/80 border border-gray-200 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#1e3a8a] focus:bg-white transition"
+                          className="h-10 w-full rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 text-xs text-[#25354d] outline-none transition placeholder:text-[#91a0b3] focus:border-[#0e7490] focus:bg-white focus:ring-2 focus:ring-[#0e7490]/15"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">
+                        <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
                           Category
                         </label>
                         <select
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-gray-50/80 border border-gray-200 text-xs text-gray-800 outline-none focus:border-[#1e3a8a] focus:bg-white transition"
+                          className="h-10 w-full rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 text-xs text-[#25354d] outline-none transition focus:border-[#0e7490] focus:bg-white focus:ring-2 focus:ring-[#0e7490]/15"
                         >
                           <option value="General">General</option>
                           <option value="Notices">Notices</option>
@@ -345,20 +370,21 @@ export default function AdminDownloadsPanel() {
                     {/* Right Column */}
                     <div className="space-y-3">
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">
+                        <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
                           Description (optional)
                         </label>
                         <textarea
-                          rows={2}
+                          rows={3}
+                          maxLength={1000}
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           placeholder="Short description of the file..."
-                          className="w-full px-3.5 py-2 rounded-xl bg-gray-50/80 border border-gray-200 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#1e3a8a] focus:bg-white transition resize-none"
+                          className="w-full resize-y rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 py-2.5 text-xs leading-5 text-[#25354d] outline-none transition placeholder:text-[#91a0b3] focus:border-[#0e7490] focus:bg-white focus:ring-2 focus:ring-[#0e7490]/15"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1">
+                        <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-[#52647b]">
                           Choose file{' '}
                           {editingId ? (
                             <span className="text-gray-400 font-normal lowercase">(optional)</span>
@@ -368,19 +394,23 @@ export default function AdminDownloadsPanel() {
                         </label>
                         <input
                           type="file"
-                          onChange={(e) => setFile(e.target.files[0])}
-                          className="w-full px-3 py-1.5 rounded-xl bg-gray-50/80 border border-gray-200 text-xs text-gray-600 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-blue-50 file:text-[#1e3a8a] hover:file:bg-blue-100 focus:outline-none transition cursor-pointer"
+                          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.zip"
+                          onChange={(e) => { setFile(e.target.files?.[0] || null); setErrorMsg(''); }}
+                          className="w-full rounded-md border border-[#dce5ef] bg-[#f7fafc] px-3 py-2 text-xs text-[#52647b] file:mr-3 file:rounded-sm file:border-0 file:bg-[#edf2fb] file:px-2.5 file:py-1 file:text-[11px] file:font-bold file:text-[#1e3a8a] hover:file:bg-[#dfe9f7]"
                         />
+                        {file && <p className="mt-1 text-[10px] text-[#69788d]">Selected: {file.name} · {(file.size / (1024 * 1024)).toFixed(2)} MB</p>}
+                        {editingId && !file && <p className="mt-1 text-[10px] text-[#8290a3]">Leave empty to keep the current file. Maximum size: 20 MB.</p>}
                       </div>
                     </div>
                   </div>
 
                   {/* Footer Action Buttons */}
-                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 mt-2">
+                  <div className="mt-2 flex items-center justify-end gap-2 border-t border-[#e3eaf1] pt-4">
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-5 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition cursor-pointer"
+                      disabled={loading}
+                      className="h-10 rounded-md border border-[#dce5ef] px-4 text-xs font-bold text-[#52647b] transition hover:bg-[#f7fafc] disabled:opacity-60"
                     >
                       Cancel
                     </button>
@@ -388,7 +418,7 @@ export default function AdminDownloadsPanel() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className="flex items-center gap-2 px-6 py-2 rounded-xl bg-[#1e3a8a] hover:bg-[#1b337a] text-xs font-bold text-white shadow-md transition cursor-pointer disabled:opacity-60 disabled:pointer-events-none"
+                      className="inline-flex h-10 items-center gap-2 rounded-md bg-[#1e3a8a] px-5 text-xs font-bold text-white transition hover:bg-[#172e6e] disabled:cursor-wait disabled:opacity-60"
                     >
                       {loading ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -401,6 +431,37 @@ export default function AdminDownloadsPanel() {
                 </form>
               </div>
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deletingItem && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#10203d]/55 p-4 backdrop-blur-sm">
+            <motion.section
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="delete-download-title"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              className="w-full max-w-sm border border-[#dce5ef] bg-white p-5 shadow-2xl"
+            >
+              <div className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-rose-200 bg-rose-50 text-rose-700"><AlertTriangle className="h-5 w-5" /></span>
+                <div>
+                  <h3 id="delete-download-title" className="text-sm font-bold text-[#17243b]">Delete this resource?</h3>
+                  <p className="mt-1 text-xs leading-5 text-[#69788d]">“{deletingItem.title}” will be removed from the public downloads page.</p>
+                </div>
+              </div>
+              {errorMsg && <p role="alert" className="mt-4 border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{errorMsg}</p>}
+              <div className="mt-5 flex justify-end gap-2 border-t border-[#e3eaf1] pt-4">
+                <button type="button" onClick={() => { setDeletingItem(null); setErrorMsg(''); }} disabled={isDeleting} className="h-9 rounded-md border border-[#dce5ef] px-3 text-xs font-bold text-[#52647b] transition hover:bg-[#f7fafc] disabled:opacity-60">Cancel</button>
+                <button type="button" onClick={() => handleDelete(deletingItem._id)} disabled={isDeleting} className="inline-flex h-9 items-center gap-2 rounded-md bg-rose-700 px-3.5 text-xs font-bold text-white transition hover:bg-rose-800 disabled:opacity-60">
+                  {isDeleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{isDeleting ? 'Deleting...' : 'Delete resource'}
+                </button>
+              </div>
+            </motion.section>
           </div>
         )}
       </AnimatePresence>
