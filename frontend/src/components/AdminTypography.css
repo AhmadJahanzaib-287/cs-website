@@ -1,0 +1,79 @@
+.admin-dashboard-shell,
+.admin-dashboard-shell :where(*) {
+  font-family: "Lato", sans-serif !important;
+}
+
+.admin-dashboard-shell :is(h1, h2, h3, h4, h5, h6) {
+  font-family: "Inter", sans-serif !important;
+}
+
+.admin-dashboard-shell aside h1 {
+  font-weight: 700 !important;
+}
+
+.admin-dashboard-shell {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.admin-setup-page,
+.admin-setup-page :where(*) {
+  font-family: "Lato", sans-serif;
+}
+
+.admin-dashboard-shell label {
+  font-size: 13px;
+}
+
+.admin-dashboard-shell p:has(+ :is(h1, h2, h3)) {
+  font-family: "Lato", sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+}
+
+.admin-dashboard-shell p:has(+ :is(h1, h2, h3)) > span[class*="h-px"] {
+  display: none;
+}
+
+.admin-dashboard-shell :is(input, textarea, select) {
+  font-size: 14px;
+}
+
+.admin-dashboard-shell :is(div, section, article)[class*="bg-white"][class*="border"]:is(
+  [class~="p-4"],
+  [class~="p-5"],
+  [class~="p-6"],
+  [class~="sm:p-4"],
+  [class~="sm:p-5"],
+  [class~="sm:p-6"]
+) {
+  padding: 20px !important;
+  border-radius: 14px;
+}
+
+.admin-dashboard-shell :is(div, section, article)[class*="bg-white"][class*="border"] {
+  border-radius: 14px;
+}
+
+.admin-dashboard-shell > main > .flex-1.overflow-y-auto {
+  padding: 24px !important;
+}
+
+@media (max-width: 640px) {
+  .admin-dashboard-shell > main > .flex-1.overflow-y-auto {
+    padding: 16px !important;
+  }
+
+  .admin-dashboard-shell :is(div, section, article)[class*="bg-white"][class*="border"]:is(
+    [class~="p-4"],
+    [class~="p-5"],
+    [class~="p-6"],
+    [class~="sm:p-4"],
+    [class~="sm:p-5"],
+    [class~="sm:p-6"]
+  ) {
+    padding: 16px !important;
+  }
+}

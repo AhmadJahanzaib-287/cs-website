@@ -9,9 +9,10 @@ import { sendToken } from '../utils/sendToken.js';
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const loginIdentifier = typeof email === 'string' ? email.trim().toLowerCase() : '';
 
     // 1. Validation check
-    if (!email || !password) {
+    if (!loginIdentifier || !password) {
       return res.status(400).json({
         success: false,
         message: 'Please provide both email and password',
@@ -19,7 +20,10 @@ export const login = async (req, res) => {
     }
 
     // 2. Check if user exists (explicitly select password field)
-    const user = await User.findOne({ email }).select('+password');
+    const userQuery = loginIdentifier.includes('@')
+      ? { email: loginIdentifier }
+      : { username: loginIdentifier };
+    const user = await User.findOne(userQuery).select('+password');
 
     if (!user) {
       return res.status(401).json({

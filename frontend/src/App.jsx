@@ -11,6 +11,7 @@ import AcademicPrograms from './components/AcademicPrograms';
 import AboutSection from './components/AboutSection';
 import LoginPage from './components/LoginPage';
 import AdminDashboard from './components/AdminDashboard';
+import AdminSetupPage from './components/AdminSetupPage';
 import DownloadsPage from './components/downloads/DownloadsPage';
 import Faculty from "./components/faculty/Faculty";
 import ProgramDetails from './components/ProgramDetails';
@@ -73,6 +74,64 @@ function AppContent() {
   const location = useLocation();
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!root) return undefined;
+
+    const revealSelector = 'main :is(h1, h2, h3, h4, p, section, article), main [class*="bg-white"][class*="border"]';
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let order = 0;
+    let observer;
+
+    const revealTargets = (parent) => {
+      const targets = [];
+      if (parent instanceof Element && parent.matches(revealSelector)) targets.push(parent);
+      if (parent.querySelectorAll) targets.push(...parent.querySelectorAll(revealSelector));
+
+      targets.forEach((element) => {
+        if (!element.classList.contains('scroll-reveal-item')) {
+          element.classList.add('scroll-reveal-item');
+          element.style.setProperty('--scroll-reveal-delay', `${(order % 5) * 55}ms`);
+          order += 1;
+        }
+
+        if (reduceMotion || !observer) {
+          element.classList.add('scroll-reveal-visible');
+        } else if (!element.classList.contains('scroll-reveal-visible')) {
+          observer.observe(element);
+        }
+      });
+    };
+
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('scroll-reveal-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { rootMargin: '0px 0px -32px 0px', threshold: 0.08 });
+    }
+
+    revealTargets(root);
+    if (observer) root.classList.add('scroll-reveal-ready');
+
+    const mutations = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof Element) revealTargets(node);
+        });
+      });
+    });
+    mutations.observe(root, { childList: true, subtree: true });
+
+    return () => {
+      root.classList.remove('scroll-reveal-ready');
+      mutations.disconnect();
+      observer?.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const applyUpdatedSettings = (event) => setPortalSettings(event.detail);
@@ -198,6 +257,8 @@ function AppContent() {
         className="w-full flex flex-col pt-0"
       >
         <Routes>
+          <Route path="/admin/setup" element={<AdminSetupPage />} />
+
           {/* Main Landing / Home Page */}
 <Route 
   path="/" 

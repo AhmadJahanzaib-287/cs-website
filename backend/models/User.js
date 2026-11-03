@@ -16,6 +16,15 @@ const userSchema = new mongoose.Schema(
       trim: true,
       immutable: true, // Protection: Email once created CANNOT be modified via queries
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 32,
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],

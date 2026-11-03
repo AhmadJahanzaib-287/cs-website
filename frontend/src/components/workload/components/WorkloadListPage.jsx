@@ -78,7 +78,7 @@ export default function WorkloadListPage({ onOpenWorkload }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-7 py-2">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       <header className="flex flex-col justify-between gap-4 border-b border-[#d5e1ec] pb-5 sm:flex-row sm:items-end">
         <div>
           <p className="mb-2 text-[10px] font-bold uppercase text-[#0e7490]">Academic operations</p>
@@ -93,7 +93,7 @@ export default function WorkloadListPage({ onOpenWorkload }) {
         </button>
       </header>
 
-      <section className="grid grid-cols-2 divide-x divide-y divide-[#dce5ef] border-y border-[#dce5ef] bg-white sm:grid-cols-4 sm:divide-y-0" aria-label="Workload summary">
+      <section className="grid grid-cols-2 divide-x divide-y divide-[#dce5ef] overflow-hidden rounded-xl border border-[#dce5ef] bg-white sm:grid-cols-4 sm:divide-y-0" aria-label="Workload summary">
         <div className="flex items-center gap-3 px-4 py-3.5 sm:px-5">
           <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#edf2fb] text-[#1e3a8a]"><Folder className="h-4 w-4" /></span>
           <div><p className="text-[10px] font-bold uppercase text-[#8290a3]">All sessions</p><p className="mt-0.5 text-lg font-extrabold tabular-nums text-[#17243b]">{isLoading ? '–' : workloads.length}</p></div>

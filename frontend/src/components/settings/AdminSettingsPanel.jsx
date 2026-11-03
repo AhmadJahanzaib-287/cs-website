@@ -82,6 +82,9 @@ const AdminSettingsPanel = () => {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordAlert, setPasswordAlert] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [invitationEmail, setInvitationEmail] = useState('');
+  const [invitationSaving, setInvitationSaving] = useState(false);
+  const [invitationAlert, setInvitationAlert] = useState(null);
 
   // System counts
   const [systemStats, setSystemStats] = useState({
@@ -200,6 +203,24 @@ const AdminSettingsPanel = () => {
       });
     } finally {
       setPasswordSaving(false);
+    }
+  };
+
+  const handleInviteAdmin = async (e) => {
+    e.preventDefault();
+    setInvitationAlert(null);
+    setInvitationSaving(true);
+    try {
+      const { data } = await API.post('/auth/admin-invitations', { email: invitationEmail });
+      setInvitationEmail('');
+      setInvitationAlert({ type: 'success', message: data.message });
+    } catch (err) {
+      setInvitationAlert({
+        type: 'error',
+        message: err.response?.data?.message || 'Could not send the invitation.',
+      });
+    } finally {
+      setInvitationSaving(false);
     }
   };
 
@@ -679,6 +700,52 @@ const AdminSettingsPanel = () => {
                   </div>
                 </div>
 
+                {user?.role === 'superadmin' && (
+                  <form onSubmit={handleInviteAdmin} className="space-y-4 rounded-xl border border-[#cbd5e1] p-5">
+                    <div className="flex items-center gap-2 border-b border-[#e2e8f0] pb-3 text-sm font-semibold text-[#1e3a8a]">
+                      <Mail className="h-4 w-4" />
+                      <span>Invite an administrator</span>
+                    </div>
+                    <p className="text-xs leading-5 text-[#64748b]">
+                      Send a single-use setup link to their email. They will choose their username and password; the link expires in 24 hours.
+                    </p>
+                    {invitationAlert && (
+                      <div
+                        role={invitationAlert.type === 'error' ? 'alert' : 'status'}
+                        className={`rounded-lg border px-3 py-2.5 text-xs ${
+                          invitationAlert.type === 'error'
+                            ? 'border-rose-200 bg-rose-50 text-rose-800'
+                            : 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                        }`}
+                      >
+                        {invitationAlert.message}
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <label className="sr-only" htmlFor="admin-invitation-email">New administrator email</label>
+                      <input
+                        id="admin-invitation-email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        maxLength={254}
+                        value={invitationEmail}
+                        onChange={(e) => setInvitationEmail(e.target.value)}
+                        placeholder="new-admin@example.com"
+                        className="min-w-0 flex-1 rounded-lg border border-[#cbd5e1] px-3 py-2.5 text-sm outline-none focus:border-[#0e7490]"
+                      />
+                      <button
+                        type="submit"
+                        disabled={invitationSaving}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1e3a8a] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#172e6e] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {invitationSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                        {invitationSaving ? 'Sending…' : 'Send setup link'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+
                 {/* Change Password Form */}
                 <form onSubmit={handlePasswordSubmit} className="rounded-xl border border-[#cbd5e1] p-5 space-y-4">
                   <div className="flex items-center gap-2 border-b border-[#e2e8f0] pb-3 text-xs font-bold text-[#1e3a8a]">
@@ -884,4 +951,3 @@ const AdminSettingsPanel = () => {
 };
 
 export default AdminSettingsPanel;
-

@@ -68,14 +68,15 @@ const LoginPage = ({ onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-xs font-medium text-slate-700 ml-1">Official Email</label>
+            <label className="text-xs font-medium text-slate-700 ml-1">Email or username</label>
             <div className="relative">
               <Mail className="w-5 h-5 absolute left-4 top-3.5 text-slate-500" />
               <input
-                type="email"
+                type="text"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@uaf.edu.pk"
+                placeholder="admin@uaf.edu.pk or username"
                 required
                 className="w-full bg-white border border-slate-300 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#1e3a8a] transition-all"
               />

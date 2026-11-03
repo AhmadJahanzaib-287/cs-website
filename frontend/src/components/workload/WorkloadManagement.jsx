@@ -21,7 +21,7 @@ export default function WorkloadManagement() {
   };
 
   return (
-    <div className="w-full min-h-[70vh] py-6 px-2 sm:px-4">
+    <div className="w-full min-h-[70vh]">
       {!activeWorkload ? (
         <WorkloadListPage onOpenWorkload={handleOpenWorkload} />
       ) : (

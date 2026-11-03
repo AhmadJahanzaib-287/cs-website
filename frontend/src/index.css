@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 body {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Lato", sans-serif;
 }
 
 .font-sans {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Lato", sans-serif;
 }
 
 h1,
@@ -14,8 +14,32 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Manrope", "DM Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   letter-spacing: 0;
+}
+
+html #root.scroll-reveal-ready .scroll-reveal-item {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 520ms ease var(--scroll-reveal-delay, 0ms),
+    transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--scroll-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html #root.scroll-reveal-ready .scroll-reveal-item.scroll-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html #root.scroll-reveal-ready .scroll-reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
 }
 
 img {
@@ -29,7 +53,7 @@ img {
 }
 
 .public-light-theme .hero-copy h1 {
-  font-family: "Manrope", "DM Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 650;
   letter-spacing: 0;
 }

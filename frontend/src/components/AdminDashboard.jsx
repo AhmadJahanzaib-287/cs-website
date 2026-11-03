@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useRef, useState } from 'react';
+import './AdminTypography.css';
 import Cropper from 'react-easy-crop';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
@@ -372,7 +373,7 @@ const AdminDashboard = () => {
   const facultyCategories = ['Professors', 'Associate Professors', 'Assistant Professors', 'Lecturers'];
 
   return (
-    <div className="flex h-screen select-none flex-col overflow-hidden bg-[#f3f7fb] font-sans text-[#17243b] md:flex-row">
+    <div className="admin-dashboard-shell flex h-screen select-none flex-col overflow-hidden bg-[#f3f7fb] text-[#17243b] md:flex-row">
 
       {/* ── Mobile Top Bar ───────────────────────────────────────────── */}
       <div className="sticky top-0 z-40 border-b border-white/15 bg-[#172e6e] px-4 py-3 md:hidden">
@@ -456,7 +457,7 @@ const AdminDashboard = () => {
           {/* Sidebar Header */}
           <div className="mb-5 flex items-center justify-between px-2">
             <div className="flex items-center gap-3">
-              <img src="/dcs-logo.png" alt="DCS Logo" className="h-10 w-10 rounded-md bg-white object-contain p-0.5" />
+              <img src="/dcs-logo.png" alt="DCS logo" className="h-10 w-10 shrink-0 object-contain" />
               <h1 className="text-base font-bold tracking-tight text-white">
                 DCS <span className="text-cyan-200">Admin</span>
               </h1>
